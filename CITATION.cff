@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If this work helps yours, please cite it as below."
+title: "flickering-sign: an autonomous brain from Laya and an LLM"
+abstract: >-
+  An autonomous brain packaged as a bundle: Laya as a fast System 1, any
+  OpenAI-compatible LLM as a slow, asynchronous System 2, config-declared drives
+  and neuromodulator dials over one event stream, a hippocampus with sleep
+  consolidation, and a cerebellum whose learning progress is the only relief from
+  boredom. Curiosity is not a module: the experiment watches whether it emerges.
+type: software
+authors:
+  - alias: Tienef
+repository-code: "https://github.com/tienef/flickering-sign"
+license: AGPL-3.0-only
+version: 0.1.0
+date-released: "2026-09-25"
+keywords:
+  - cognitive architecture
+  - large language models
+  - curiosity
+  - intrinsic motivation
+  - artificial life
