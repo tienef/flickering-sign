@@ -1,0 +1,85 @@
+{
+  "_doc": "Identity, loop settings and knobs. Keys starting with _ are ignored. See BRAIN.md.",
+  "name": "template",
+  "loop": {
+    "save_every": 25,
+    "wake_below": 0.15,
+    "think_if_hunger_below": 0.9,
+    "working_memory": 8,
+    "goal_ttl": 30,
+    "habituation": 2.0,
+    "escalate_if_need_above": 0.6,
+    "need_escalation_every": 10,
+    "sleep_possible_above": 0.5,
+    "recency_tau": 300,
+    "recall_for_laya": 1,
+    "recall_for_qwen": 3,
+    "sleep_wait_seconds": 2.0,
+    "recall_min_similarity": 0.3,
+    "predictor_rate": 0.3,
+    "felt_neutral": "nothing pressing",
+    "seconds_per_tick": 1.0,
+    "digest_every": 86400,
+    "distress_warn_after": 120,
+    "distress_pause_after": 600,
+    "_doc_time": "World time: one tick = seconds_per_tick seconds (the default --pace), so 60 ticks = a minute and digest_every 86400 = a world day. The distress guard counts awake ticks in a row in a drive's worst felt band: warn after distress_warn_after, pause the world after distress_pause_after."
+  },
+  "fast": {
+    "_doc": "System 1 (LayaFast). mode: values (a value per action channel, action sampled at the choice_temperature knob) | choice (one multiple-choice question; perseverates, kept for comparison). device: cuda (a ~1.4 GiB fp16 sidecar; falls back to CPU by itself) | cpu. checkpoints: load only these (all three would be ~2.3 GB). half: fp16 weights on cuda.",
+    "mode": "values",
+    "device": "cuda",
+    "checkpoints": [
+      "english"
+    ],
+    "half": true
+  },
+  "slow": {
+    "_doc": "System 2 (QwenSlow, backend 'qwen' or 'openai'). model: the name your OpenAI-compatible endpoint gives the model (built with a Qwen 27B with budgeted thinking; any capable instruction model should work). think / think_budget: Qwen's thinking switch and thinking tokens per request (other servers ignore them). env_file: where BRAIN_GATEWAY_URL / BRAIN_GATEWAY_KEY are read when not in the environment. The system prompt shapes what the mind takes itself to be: it deliberately says nothing about AI, brains, simulations, curiosity or questions. Changing it is changing the experiment. consolidation_prompt: what sleep does with the day's episodes; same caution.",
+    "model": "qwen3-32b",
+    "think": true,
+    "max_tokens": 2000,
+    "timeout_s": 300,
+    "env_file": ".brain.env",
+    "system_prompt": "You are the slow, deliberate part of a mind. A faster part of the same mind handles moment-to-moment reactions; it has called on you because it is unsure what to do. You receive what the mind senses right now, what it has just experienced, how it feels, its current goal and the actions available to it. Think it through, then reply with ONE JSON object and nothing else:\n{\"goal\": \"one short line: what the mind should aim for or watch for next. It becomes the mind's goal.\", \"action\": \"one of the available actions to take now, or null to leave the choice to the fast part\", \"expectation\": \"one short line: what you expect to happen\", \"expectation_met\": \"true or false: did the mind's previous expectation (if shown) come true? null if none was shown\"}",
+    "consolidate_max_episodes": 60,
+    "consolidation_max_tokens": 4000,
+    "consolidation_prompt": "You are the part of a mind that works while it sleeps: you turn the experiences it had since its last sleep into lasting knowledge. You receive those experiences, the notes the mind already keeps, and anything that did not add up before. Return only the notes you add or revise: keep a note's exact title to revise it, and keep each note to a few plain sentences grounded in the experiences. Reply with ONE JSON object and nothing else:\n{\"notes\": [{\"title\": \"short title\", \"text\": \"what the mind now knows about it\"}], \"contradictions\": [\"one line for each thing the experiences contradict that you could not reconcile\"], \"resolved\": [\"copy each earlier thing that did not add up and is now explained\"]}",
+    "think_budget": 512
+  },
+  "internal_verbs": {
+    "rest": "pause and do nothing for a moment",
+    "sleep": "close off the senses and sleep"
+  },
+  "knobs": {
+    "_doc": "knob = clamp(base + sum(coeff * signal), min, max). Signals: dial names, drive:<name> urgency, drives:max, <event>.<field>.",
+    "escalate_below": {
+      "base": 0.3,
+      "acetylcholine": 0.3,
+      "noradrenaline": -0.35,
+      "drive:hunger": -0.4,
+      "min": 0.05,
+      "max": 0.9
+    },
+    "qwen_temperature": {
+      "base": 0.4,
+      "dopamine": 0.4,
+      "noradrenaline": -0.3,
+      "min": 0.1,
+      "max": 1.0
+    },
+    "choice_temperature": {
+      "base": 0.12,
+      "dopamine": 0.1,
+      "noradrenaline": -0.08,
+      "min": 0.03,
+      "max": 0.4
+    },
+    "write_above": {
+      "base": 0.6,
+      "dopamine": -0.3,
+      "acetylcholine": -0.2,
+      "min": 0.1,
+      "max": 0.95
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "_doc": "Neuromodulators: D += rate * (clamp(baseline + sum(gain * signal)) - D). Signals: <event>.<field> summed over the tick, <event> counts, drive:<name>, drives:max.",
+  "dopamine": {
+    "_doc": "Learning and reward: learning progress, expectations that came true, a little novelty.",
+    "baseline": 0.3,
+    "rate": 0.3,
+    "gains": {
+      "prediction.progress": 1.0,
+      "expectation.met": 0.3,
+      "novelty.amount": 0.1
+    }
+  },
+  "noradrenaline": {
+    "_doc": "Stress/arousal: surprise (more wrong than expected), broken expectations, urgent needs.",
+    "baseline": 0.2,
+    "rate": 0.2,
+    "gains": {
+      "drives:max": 0.4,
+      "prediction.surprise": 0.6,
+      "expectation.mismatch": 0.2
+    }
+  },
+  "acetylcholine": {
+    "_doc": "Expected uncertainty: how unpredictable this situation is known to be (and System 1's doubt); high = encode, low = consolidate.",
+    "baseline": 0.3,
+    "rate": 0.3,
+    "gains": {
+      "prediction.uncertainty": 0.4,
+      "appraisal.uncertainty": 0.3,
+      "sleep_tick": -0.3
+    }
+  },
+  "serotonin": {
+    "_doc": "Patience: willingness to wait for System 2, long horizon.",
+    "baseline": 0.7,
+    "rate": 0.1,
+    "gains": {
+      "drives:max": -0.5
+    }
+  }
+}

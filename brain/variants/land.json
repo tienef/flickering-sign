@@ -1,0 +1,14 @@
+{
+  "_doc": "Step 9: a mind born into a land. Switches on the body's drives the land can ease (food, cold) and loneliness (others live there). Applied when a bundle is CREATED with --overlay brain/variants/land.json; for a living bundle the same change is made by hand, snapshotted and recorded in its interventions.jsonl.",
+  "drives.json": {
+    "food": {
+      "enabled": true
+    },
+    "cold": {
+      "enabled": true
+    },
+    "loneliness": {
+      "enabled": true
+    }
+  }
+}

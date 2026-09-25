@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brain observer</title>
+<style>
+:root {
+  --bg: #f6f5f1; --panel: #ffffff; --ink: #24231f; --muted: #6f6c64; --line: #dedbd2;
+  --accent: #3f6f8f; --accent-soft: #dce8ef; --sleep: #b9b3d6; --think: #7a9a6a;
+  --warn: #c08a2c; --stop: #b0533c; --place: #ece9e0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17181a; --panel: #1f2023; --ink: #e7e5df; --muted: #9a978f; --line: #34353a;
+    --accent: #86b3d1; --accent-soft: #263641; --sleep: #5c5780; --think: #8fb07d;
+    --warn: #d8a748; --stop: #d77a62; --place: #2a2b2f;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17181a; --panel: #1f2023; --ink: #e7e5df; --muted: #9a978f; --line: #34353a;
+  --accent: #86b3d1; --accent-soft: #263641; --sleep: #5c5780; --think: #8fb07d;
+  --warn: #d8a748; --stop: #d77a62; --place: #2a2b2f;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+select, button { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 8px; padding: 5px 10px; }
+button { cursor: pointer; }
+button.primary { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+.pill { font-size: 13px; padding: 2px 10px; border-radius: 99px; background: var(--accent-soft); }
+.pill.paused { background: color-mix(in srgb, var(--warn) 25%, transparent); }
+.pill.ended { background: var(--place); color: var(--muted); }
+.clock { font-variant-numeric: tabular-nums; color: var(--muted); }
+.spacer { flex: 1; }
+label.toggle { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+nav { display: flex; gap: 4px; padding: 8px 16px 0; }
+nav button { border: none; background: none; border-bottom: 2px solid transparent; border-radius: 0; color: var(--muted); }
+nav button.on { color: var(--ink); border-bottom-color: var(--accent); }
+main { padding: 12px 16px 32px; max-width: 1200px; margin: 0 auto; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  margin: 0 0 8px; font-weight: 600; }
+.goal { font-size: 17px; }
+.muted { color: var(--muted); }
+.bars { display: grid; grid-template-columns: 110px 1fr 44px; gap: 6px 10px; align-items: center; font-size: 13px; }
+.bar { height: 8px; background: var(--place); border-radius: 4px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); }
+.feed { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.feed li { padding: 6px 0; border-top: 1px solid var(--line); }
+.feed li:first-child { border-top: none; }
+.feed .t { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; margin-right: 6px; }
+.alert { border-left: 3px solid var(--warn); padding: 6px 10px; margin: 0 0 10px; background: color-mix(in srgb, var(--warn) 10%, transparent); }
+.alert.stop { border-left-color: var(--stop); background: color-mix(in srgb, var(--stop) 10%, transparent); }
+svg text { fill: var(--ink); font: 12px system-ui, sans-serif; }
+.timeline { margin-top: 16px; }
+.scrub { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+.scrub input { flex: 1; }
+.notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.notes h3 { font-size: 15px; margin: 0 0 4px; }
+.hide-feel .feel { filter: blur(5px); }
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+#map.land { border-radius: 8px; }
+:root[data-theme="dark"] #map.land { filter: brightness(.72) saturate(.85); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #map.land { filter: brightness(.72) saturate(.85); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Observer</h1>
+  <select id="run" aria-label="Run"></select>
+  <span id="status" class="pill">—</span>
+  <span id="clock" class="clock"></span>
+  <span class="spacer"></span>
+  <label class="toggle"><input type="checkbox" id="hideFeel"> hide feelings</label>
+  <button id="pause" class="primary" hidden>Pause world</button>
+</header>
+<nav>
+  <button data-tab="now" class="on">Now</button>
+  <button data-tab="mind">Mind</button>
+  <button data-tab="digest">Digest</button>
+</nav>
+<main>
+  <section id="tab-now">
+    <div id="alerts"></div>
+    <div class="grid">
+      <div class="card"><h2>The world</h2><svg id="map" viewBox="0 0 420 360" width="100%"></svg></div>
+      <div>
+        <div class="card">
+          <h2 id="nowTitle">Now</h2>
+          <div class="goal" id="goal">—</div>
+          <div class="muted" id="where" style="margin-top:6px"></div>
+          <div class="muted feel" id="feeling" style="margin-top:4px"></div>
+          <div id="outcome" style="margin-top:8px; font-size:14px"></div>
+        </div>
+        <div class="card" style="margin-top:16px"><h2>Needs</h2><div class="bars feel" id="needs"></div></div>
+        <div class="card" style="margin-top:16px" id="voicesCard" hidden><h2>Voices</h2><ul class="feed" id="voices"></ul></div>
+        <div class="card" style="margin-top:16px"><h2>Recent thoughts</h2><ul class="feed" id="thoughts"></ul></div>
+      </div>
+    </div>
+    <div class="card timeline">
+      <h2>Timeline</h2>
+      <svg id="tl" viewBox="0 0 1000 70" width="100%" preserveAspectRatio="none" style="height:70px"></svg>
+      <div class="scrub">
+        <input type="range" id="scrub" min="0" max="0" value="0" aria-label="Replay">
+        <button id="live">Live</button>
+      </div>
+      <div class="muted" style="font-size:12px">lilac: asleep · green: a thought · blue: it spoke · amber / red: distress warning / pause</div>
+    </div>
+  </section>
+  <section id="tab-mind" hidden><div class="notes" id="notes"></div></section>
+  <section id="tab-digest" hidden>
+    <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap">
+      <button data-win="3600">Last hour</button>
+      <button data-win="86400">Last world day</button>
+      <button data-win="0">Whole run</button>
+    </div>
+    <div class="card" id="digest"><div class="empty">Pick a window.</div></div>
+  </section>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const clock = t => { if (t == null) return ""; const d = Math.floor(t / 86400), r = t % 86400;
+  const p = n => String(n).padStart(2, "0");
+  return `day ${d + 1}, ${p(Math.floor(r / 3600))}:${p(Math.floor(r % 3600 / 60))}:${p(r % 60)}`; };
+let S = { run: null, frames: [], controls: [], control: {}, meta: {}, follow: true, at: null, readOnly: false, runs: [] };
+
+try { if (localStorage.getItem("hideFeel") === "1") { $("#hideFeel").checked = true; document.body.classList.add("hide-feel"); } } catch (e) {}
+$("#hideFeel").onchange = e => { document.body.classList.toggle("hide-feel", e.target.checked);
+  try { localStorage.setItem("hideFeel", e.target.checked ? "1" : "0"); } catch (err) {} };
+
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+  ["now", "mind", "digest"].forEach(t => $("#tab-" + t).hidden = t !== b.dataset.tab);
+  if (b.dataset.tab === "mind") loadWiki();
+});
+
+async function j(url, opt) { const r = await fetch(url, opt); if (!r.ok) throw new Error(r.status); return r.json(); }
+
+async function loadRuns() {
+  const d = await j("/api/runs"); S.readOnly = d.read_only; S.runs = d.runs;
+  const sel = $("#run"), cur = sel.value;
+  sel.innerHTML = d.runs.map(r => `<option value="${esc(r.name)}">${esc(r.name)}${r.live ? (r.paused ? " (paused)" : " (live)") : ""}</option>`).join("");
+  if (cur && d.runs.some(r => r.name === cur)) sel.value = cur;
+  if (!S.run && d.runs.length) { S.run = d.runs[0].name; sel.value = S.run; await loadFrames(true); }
+}
+$("#run").onchange = async e => { S.run = e.target.value; S.frames = []; S.follow = true; await loadFrames(true); };
+
+async function loadFrames(reset) {
+  if (!S.run) return;
+  if (reset) S.frames = [];
+  for (;;) {
+    const since = S.frames.length ? S.frames[S.frames.length - 1].t : -1;
+    const d = await j(`/api/frames?run=${encodeURIComponent(S.run)}&since=${since}&limit=20000`);
+    S.meta = d.meta; S.controls = d.controls; S.control = d.control || {}; S.others = d.others || {};
+    if ((d.meta.world || "").startsWith("land")) { try { S.land = await j(`/api/world?run=${encodeURIComponent(S.run)}`); } catch (e) {} }
+    else S.land = null;
+    S.frames.push(...d.frames);
+    if (d.frames.length < 20000) break;
+  }
+  render();
+}
+
+function ring() {           // the order of places, learned from walks
+  const next = {}, seen = [];
+  for (let i = 1; i < S.frames.length; i++) {
+    const a = S.frames[i - 1], b = S.frames[i];
+    if (a.place && !seen.includes(a.place)) seen.push(a.place);
+    if (a.action === "walk" && a.place && b.place && a.place !== b.place) next[a.place] = b.place;
+  }
+  if (!seen.length) return [];
+  const order = [seen[0]];
+  while (next[order[order.length - 1]] && !order.includes(next[order[order.length - 1]])) order.push(next[order[order.length - 1]]);
+  seen.forEach(p => { if (!order.includes(p)) order.push(p); });
+  return order;
+}
+
+// calm, flat colours; no animation, no flicker (the fire is just orange)
+const TILE = { "grass": "#cfe0b4", "tall grass": "#b9d39a", "dirt": "#cdb48e", "sand": "#eadfb8",
+  "water": "#9cc3dd", "tree": "#6f9a5c", "sapling": "#a9c98c", "stump": "#a58a66", "berry bush": "#8e8a6a",
+  "bare bush": "#93a882", "apple tree": "#5f8f4f", "bare apple tree": "#7d9a6a", "rock": "#a3a19b",
+  "stones": "#c4c1b8", "clay": "#b8b4a8", "flowers": "#dfe0a0", "plank wall": "#9b7a55",
+  "stone wall": "#8d8a84", "closed door": "#b58b5a", "open door": "#d9c2a0", "heavy gate": "#77746e",
+  "open gate": "#c8c4ba", "floor": "#dcc9a6", "shelf": "#8a6a48", "sown soil": "#b99e75",
+  "sprouts": "#a8c97f", "wheat": "#e2c96a", "fire": "#e0894f", "ashes": "#b0aba3",
+  "flickering stone": "#8f8aa8", "mist": "#eceae4" };
+const MARK = { blue: "#4f7fc4", amber: "#c9912f", green: "#4f9a5a", violet: "#8a6cc0", red: "#c05a4a",
+  white: "#f4f4f0", grey: "#8a8a8a", gold: "#bfa23a" };
+
+function drawLand(f) {
+  const svg = $("#map"), L = S.land, [W, H] = L.size, k = 10;
+  svg.setAttribute("viewBox", `0 0 ${W * k} ${H * k}`); svg.classList.add("land");
+  let h = `<g shape-rendering="crispEdges">`;
+  L.rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) {
+    const name = L.legend[row[x]] || "?";
+    h += `<rect x="${x * k}" y="${y * k}" width="${k}" height="${k}" fill="${TILE[name] || "#ccc"}"><title>${esc(name)}</title></rect>`; } });
+  Object.entries(L.items || {}).forEach(([p, it]) => { const [x, y] = p.split(",").map(Number);
+    h += `<rect x="${x * k + 3}" y="${y * k + 3}" width="4" height="4" rx="1" fill="#5a5448"><title>${esc(it)}</title></rect>`; });
+  h += `</g>`;
+  if (S.follow && L.phase === "night") h += `<rect width="${W * k}" height="${H * k}" fill="#1b2440" opacity=".28"/>`;
+  const me = S.meta.bundle, upto = S.frames.filter(x => x.t <= f.t && x.pos);
+  const trail = upto.slice(-80).map(x => `${x.pos[0] * k + k / 2},${x.pos[1] * k + k / 2}`).join(" ");
+  if (trail) h += `<polyline points="${trail}" fill="none" stroke="${MARK[S.meta.mark] || "var(--accent)"}" stroke-width="1.5" opacity=".45"/>`;
+  if (S.follow) Object.entries(L.bodies || {}).forEach(([name, b]) => { if (name === me) return;
+    const o = (S.others || {})[name];
+    h += `<circle cx="${b.x * k + k / 2}" cy="${b.y * k + k / 2}" r="4" fill="${MARK[b.mark] || "#888"}" stroke="#333" stroke-width=".6" opacity="${o && o.asleep ? .45 : 1}"><title>${esc(name)}</title></circle>`; });
+  const at = f.pos || (upto.length ? upto[upto.length - 1].pos : null);
+  if (at) h += `<circle cx="${at[0] * k + k / 2}" cy="${at[1] * k + k / 2}" r="5" fill="${MARK[S.meta.mark] || "var(--accent)"}" stroke="#222" stroke-width="1.2" opacity="${f.asleep ? .45 : 1}"><title>${esc(me)}</title></circle>`;
+  svg.innerHTML = h;
+}
+
+function drawMap(f) {
+  if (S.land && S.land.rows) return drawLand(f);
+  $("#map").setAttribute("viewBox", "0 0 420 360"); $("#map").classList.remove("land");
+  const svg = $("#map"), places = ring(), cx = 210, cy = 180, R = 130;
+  if (!places.length) { svg.innerHTML = `<text x="210" y="180" text-anchor="middle">waiting for the first tick…</text>`; return; }
+  const upto = S.frames.filter(x => x.t <= f.t), time = {};
+  upto.forEach(x => { if (x.place && !x.asleep) time[x.place] = (time[x.place] || 0) + 1; });
+  const total = Object.values(time).reduce((a, b) => a + b, 0) || 1;
+  const pos = {}; places.forEach((p, i) => { const a = -Math.PI / 2 + 2 * Math.PI * i / places.length;
+    pos[p] = [cx + R * Math.cos(a), cy + R * Math.sin(a)]; });
+  let h = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--line)" stroke-width="2"/>`;
+  places.forEach(p => { const [x, y] = pos[p], share = (time[p] || 0) / total, r = 8 + 26 * Math.sqrt(share);
+    const lx = x + (x - cx) * 0.32, ly = y + (y - cy) * 0.32 + 4;
+    h += `<circle cx="${x}" cy="${y}" r="${r}" fill="var(--place)" stroke="var(--line)"/>`;
+    h += `<text x="${lx}" y="${ly}" text-anchor="middle">${esc(p)}</text>`; });
+  const trail = upto.filter(x => x.place).slice(-40).map(x => x.place);
+  const here = f.place || trail[trail.length - 1];
+  if (S.follow) Object.entries(S.others || {}).forEach(([name, o], k) => { if (!pos[o.place]) return;
+    const [x, y] = pos[o.place], dx = 13 * (k + 1);
+    h += `<circle cx="${x + dx}" cy="${y + 10}" r="6" fill="var(--muted)" opacity="${o.asleep ? 0.35 : 0.9}"/>`;
+    h += `<text x="${x + dx}" y="${y + 28}" text-anchor="middle" style="font-size:10px;fill:var(--muted)">${esc(name)}</text>`; });
+  if (here && pos[here]) { const [x, y] = pos[here];
+    h += `<circle cx="${x}" cy="${y}" r="9" fill="var(--accent)" opacity="${f.asleep ? 0.35 : 1}"/>`;
+    if (f.asleep) h += `<text x="${x}" y="${y - 16}" text-anchor="middle" class="muted">asleep</text>`; }
+  h += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" style="font-size:13px">${esc(S.meta.world || "")}</text>`;
+  h += `<text x="${cx}" y="${cy + 14}" text-anchor="middle" style="font-size:11px;fill:var(--muted)">circle size = time spent</text>`;
+  svg.innerHTML = h;
+}
+
+function drawTimeline() {
+  const svg = $("#tl"), F = S.frames; if (!F.length) { svg.innerHTML = ""; return; }
+  const t0 = F[0].t, t1 = Math.max(F[F.length - 1].t, t0 + 1), X = t => 1000 * (t - t0) / (t1 - t0);
+  let h = "", start = null;
+  F.forEach((f, i) => { if (f.asleep && start === null) start = f.t;
+    if ((!f.asleep || i === F.length - 1) && start !== null) { h += `<rect x="${X(start)}" y="0" width="${Math.max(1, X(f.t) - X(start))}" height="70" fill="var(--sleep)" opacity=".55"/>`; start = null; } });
+  F.forEach(f => { if (f.thought && !f.thought.error) h += `<rect x="${X(f.t)}" y="42" width="1.5" height="22" fill="var(--think)"/>`;
+    if (f.said) h += `<rect x="${X(f.t)}" y="24" width="2" height="16" fill="var(--accent)"/>`;
+    if (f.distress_pause) h += `<rect x="${X(f.t)}" y="0" width="3" height="70" fill="var(--stop)"/>`;
+    else if (f.distress_warn) h += `<rect x="${X(f.t)}" y="6" width="1.5" height="14" fill="var(--warn)"/>`; });
+  const at = S.at ?? F[F.length - 1].t;
+  h += `<rect x="${X(at) - 1}" y="0" width="2" height="70" fill="var(--accent)"/>`;
+  svg.innerHTML = h;
+  const sc = $("#scrub"); sc.min = t0; sc.max = F[F.length - 1].t; if (S.follow) sc.value = sc.max;
+}
+
+function render() {
+  const F = S.frames, sel = S.runs.find(r => r.name === S.run) || {};
+  const st = $("#status");
+  if (S.control.paused) { st.textContent = S.control.by === "guard" ? "paused by the guard" : "paused"; st.className = "pill paused"; }
+  else if (sel.live) { st.textContent = "live"; st.className = "pill"; }
+  else { st.textContent = "ended"; st.className = "pill ended"; }
+  const pb = $("#pause"); pb.hidden = S.readOnly || !sel.live;
+  pb.textContent = S.control.paused ? "Resume world" : "Pause world";
+  $("#alerts").innerHTML = S.control.paused && S.control.by === "guard"
+    ? `<div class="alert stop">The distress guard paused this world: ${esc(S.control.reason)}. Nothing ticks until you resume it.</div>` : "";
+  if (!F.length) { $("#goal").textContent = "No ticks yet."; drawMap({}); drawTimeline(); return; }
+  const f = S.follow ? F[F.length - 1] : (F.find(x => x.t >= S.at) || F[F.length - 1]);
+  $("#clock").textContent = clock(f.t) + (S.follow ? "" : " (replay)");
+  $("#nowTitle").textContent = S.follow ? "Now" : "At " + clock(f.t);
+  $("#goal").textContent = f.goal || "no particular goal";
+  const near = (f.with && f.with.length) ? ` · with ${f.with.join(", ")}` : "";
+  const holding = f.held ? ` · holding ${f.held}` : "";
+  $("#where").textContent = f.asleep ? "asleep" + (f.consolidation ? " — consolidating" : "") : `${S.land ? "" : "at the "}${f.place || "?"} · ${f.action || ""}${holding}${near}`;
+  const vs = F.filter(x => x.t <= f.t && (x.said || x.heard)).slice(-10).reverse();
+  $("#voicesCard").hidden = !S.meta.together;
+  $("#voices").innerHTML = vs.map(x => (x.said ? [`<li><span class="t">${clock(x.t)}</span><b>said:</b> “${esc(x.said)}”</li>`] : [])
+    .concat((x.heard || []).map(h => `<li><span class="t">${clock(x.t)}</span><span class="muted">${esc(h)}</span></li>`)).join("")).join("")
+    || `<li class="muted">silence so far</li>`;
+  $("#feeling").textContent = f.asleep ? "" : (f.feeling || "");
+  const lastOut = [...F.filter(x => x.t <= f.t && x.outcomes && x.outcomes.length)].pop();
+  $("#outcome").textContent = lastOut ? lastOut.outcomes[0] : "";
+  $("#needs").innerHTML = Object.entries(f.drives || {}).map(([k, [lvl, u]]) =>
+    `<span>${esc(k.replace("_", " "))}</span><div class="bar"><i style="width:${Math.round(lvl * 100)}%"></i></div><span class="muted">${Math.round(lvl * 100)}%</span>`).join("");
+  if (f.distress) $("#needs").insertAdjacentHTML("beforeend",
+    `<span></span><span class="muted" style="grid-column: span 2">${esc(f.distress.drive)}: ${f.distress.ticks} ticks in its worst band</span>`);
+  const th = F.filter(x => x.t <= f.t && x.thought && !x.thought.error).slice(-8).reverse();
+  $("#thoughts").innerHTML = th.map(x => `<li><span class="t">${clock(x.t)}</span>${esc(x.thought.goal)}</li>`).join("") || `<li class="muted">none yet</li>`;
+  drawMap(f); drawTimeline();
+}
+
+$("#scrub").oninput = e => { S.follow = false; S.at = +e.target.value; render(); };
+$("#live").onclick = () => { S.follow = true; S.at = null; render(); };
+$("#pause").onclick = async () => {
+  const want = !S.control.paused;
+  await j(`/api/control?run=${encodeURIComponent(S.run)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paused: want }) });
+  S.control.paused = want; render();
+};
+
+async function loadWiki() {
+  const b = S.meta.bundle; if (!b) return;
+  const d = await j(`/api/wiki?bundle=${encodeURIComponent(b)}`);
+  $("#notes").innerHTML = d.notes.map(n => `<div class="card"><h3>${esc(n.title)}</h3>
+    <div class="muted" style="font-size:12px">updated ${n.updated_t != null ? clock(+n.updated_t) : "?"}</div>
+    <p style="margin:8px 0 0">${esc(n.text)}</p></div>`).join("") || `<div class="empty">This mind keeps no notes yet.</div>`;
+}
+
+document.querySelectorAll("[data-win]").forEach(b => b.onclick = async () => {
+  const F = S.frames; if (!F.length) return;
+  const last = F[F.length - 1].t, win = +b.dataset.win, from = win ? Math.max(0, last - win) : 0;
+  const d = await j(`/api/digest?run=${encodeURIComponent(S.run)}&from=${from}&to=${last + 1}`);
+  if (!d.ticks) { $("#digest").innerHTML = `<div class="empty">Nothing happened in this window.</div>`; return; }
+  const li = a => a.map(x => `<li>${x}</li>`).join("");
+  $("#digest").innerHTML = `
+    <p class="muted">${clock(d.from)} → ${clock(d.to)} · ${d.ticks} ticks, ${d.awake} awake, ${d.sleeps} sleeps, ${d.thoughts} thoughts</p>
+    <h2>Where it spent its time</h2><ul>${li(Object.entries(d.places).map(([p, s]) => `${esc(p)}: ${Math.round(s * 100)}%`))}</ul>
+    <h2>What it learned</h2><p>${d.notes_touched.length ? `${d.notes_created} notes created, ${d.notes_revised} revised: ${esc(d.notes_touched.join(", "))}` : "No consolidation in this window."}</p>
+    ${d.pages_read ? `<p>Read ${d.pages_read} pages at the archive: ${esc(d.papers.join("; "))}</p>` : ""}
+    <h2>What it was aiming for</h2><ul>${li(d.first_goals.map(g => "first: " + esc(g)))}${li(d.last_goals.map(g => "last: " + esc(g)))}</ul>
+    <h2>Wellbeing</h2><ul>${li(Object.entries(d.worst_band_ticks).map(([k, v]) => `${esc(k)}: ${v} ticks in its worst band`)) || "<li>no drive reached its worst band</li>"}
+    ${li(d.guard_pauses.map(c => `paused by the guard at ${clock(c.t)}: ${esc(c.reason)}`))}</ul>`;
+});
+
+async function tick() {
+  try { await loadRuns(); const r = S.runs.find(x => x.name === S.run); if (r && r.live) await loadFrames(false); else render(); }
+  catch (e) { $("#status").textContent = "observer unreachable"; }
+}
+tick(); setInterval(tick, 2000);
+</script>
+</body>
+</html>

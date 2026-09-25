@@ -1,0 +1,2 @@
+# Box-bound code runs on Linux: keep LF everywhere (same convention as homelab-infra).
+* text=auto eol=lf

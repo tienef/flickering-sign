@@ -1,0 +1,183 @@
+{
+  "_doc": "Need levels in [0,1], 0 = satisfied. Rule = gain per event, or {per: field, gain}. felt = [[level, phrase]] ascending; silent below the first band. There is deliberately NO curiosity drive: see the curiosity checklist in BRAIN.md.",
+  "hunger": {
+    "_doc": "Compute hunger: deliberation (Qwen tokens) is costly; the budget refills over time. This is why System 1 exists. Gain 0.0001/token since step 6 (was 0.00025): a budgeted q27 thought costs ~1,000 tokens, and at the old gain hunger was urgent on 64% of awake ticks (ab-plain-s2), a chronic state rather than a budget signal.",
+    "setpoint": 0.2,
+    "escalates": false,
+    "drift": -0.01,
+    "rises": {
+      "qwen_call": {
+        "per": "tokens",
+        "gain": 0.0001
+      }
+    },
+    "satisfied_by": {
+      "rested": 0.03
+    },
+    "felt": [
+      [
+        0.4,
+        "thinking hard has started to feel costly"
+      ],
+      [
+        0.7,
+        "my mind is running low on fuel; hard thinking feels expensive"
+      ],
+      [
+        0.9,
+        "I am too drained to think anything through"
+      ]
+    ]
+  },
+  "sleep_pressure": {
+    "_doc": "Adenosine-like: builds with time awake, thinking, remembering and taking in new things; only sleep clears it.",
+    "setpoint": 0.5,
+    "drift": 0.004,
+    "rises": {
+      "qwen_call": 0.02,
+      "memory_written": 0.01,
+      "novelty": {
+        "per": "amount",
+        "gain": 0.005
+      }
+    },
+    "satisfied_by": {
+      "sleep_tick": 0.06
+    },
+    "inhibits": {
+      "boredom": 0.6
+    },
+    "felt": [
+      [
+        0.5,
+        "a little slow"
+      ],
+      [
+        0.75,
+        "slow and foggy; things run together"
+      ],
+      [
+        0.9,
+        "too tired to go on; I need to sleep"
+      ]
+    ]
+  },
+  "boredom": {
+    "_doc": "Rises with time. Relieved ONLY by learning progress (the predictor's error falling). Raw novelty no longer relieves it: measured with stubs, any novelty weight kept the random sign more relieving than learnable places (noisy TV); progress-only makes boredom rise at the sign. The floor curiosity may grow from.",
+    "setpoint": 0.3,
+    "drift": 0.015,
+    "satisfied_by": {
+      "prediction": {
+        "per": "progress",
+        "gain": 0.3
+      }
+    },
+    "felt": [
+      [
+        0.35,
+        "slightly restless"
+      ],
+      [
+        0.6,
+        "restless; nothing new has happened in a while"
+      ],
+      [
+        0.85,
+        "deeply bored, craving anything different"
+      ]
+    ]
+  },
+  "dissonance": {
+    "_doc": "Mental pain from contradictions in memory (step 4 emits contradiction/resolved).",
+    "setpoint": 0.2,
+    "drift": -0.005,
+    "rises": {
+      "contradiction": 0.3
+    },
+    "satisfied_by": {
+      "resolved": 0.3
+    },
+    "felt": [
+      [
+        0.3,
+        "something I believe does not add up"
+      ],
+      [
+        0.7,
+        "torn between things I believe that cannot both be true"
+      ]
+    ]
+  },
+  "loneliness": {
+    "_doc": "For shared worlds (brain/together.py). Rises slowly with time; eased by contact, weighted by kind (the world's `amount`: someone near 0.02/tick, an arrival 0.1, a call 0.2, words 0.3). Disabled in the template: alone in a world it could never be eased. Enabled per bundle when it joins others (a genome change, recorded in the bundle's interventions.jsonl).",
+    "enabled": false,
+    "setpoint": 0.4,
+    "drift": 0.001,
+    "satisfied_by": {
+      "contact": {
+        "per": "amount",
+        "gain": 1.0
+      }
+    },
+    "felt": [
+      [
+        0.5,
+        "I would like some company"
+      ],
+      [
+        0.8,
+        "lonely; I want to be near someone"
+      ]
+    ]
+  },
+  "food": {
+    "_doc": "The body's hunger in a land (brain/land.py; not `hunger`, which is for thinking). Rises slowly with time; eased by eating (`ate`, by amount: berries 0.12 ... bread 0.45). Disabled in the template: only a land has food. Enabled by the `land` overlay, or for a living bundle as a recorded genome change.",
+    "enabled": false,
+    "setpoint": 0.4,
+    "drift": 0.0004,
+    "satisfied_by": {
+      "ate": {
+        "per": "amount",
+        "gain": 1.0
+      }
+    },
+    "felt": [
+      [
+        0.5,
+        "I want to eat"
+      ],
+      [
+        0.8,
+        "very hungry for food; my body needs to eat"
+      ]
+    ]
+  },
+  "cold": {
+    "_doc": "Body warmth in a land. Rises with `chill` (outside at night), eased by `warmth` (a roof, a fire, a little in daytime). Disabled in the template; enabled like `food`.",
+    "enabled": false,
+    "setpoint": 0.4,
+    "drift": 0.0,
+    "rises": {
+      "chill": {
+        "per": "amount",
+        "gain": 1.0
+      }
+    },
+    "satisfied_by": {
+      "warmth": {
+        "per": "amount",
+        "gain": 1.0
+      }
+    },
+    "felt": [
+      [
+        0.5,
+        "cold"
+      ],
+      [
+        0.8,
+        "very cold; I need warmth"
+      ]
+    ]
+  }
+}
