@@ -1,6 +1,6 @@
 # Brain — build plan
 
-*The next jevs experiment: an **autonomous brain** packaged as a bundle, built from
+*The next experiment (this project was first called jevs): an **autonomous brain** packaged as a bundle, built from
 Qwen (slow, deliberate cognition), Laya (fast gating and appraisal) and plain code
 (drives, dials, memory plumbing). It is built world-agnostic, then instantiated in
 different worlds, and later several brains are put together.

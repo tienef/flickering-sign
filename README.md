@@ -1,4 +1,9 @@
-# jevs — an autonomous brain from Laya + an LLM
+# flickering-sign — an autonomous brain from Laya + an LLM
+
+> *"Blue-marked one, does the flickering sign mean the scale?"*
+>
+> — a mind in the valley, to another it could not name. The sign shows noise;
+> the scale follows a rule.
 
 An experiment in building an **autonomous brain** from the brain's division of labour:
 
@@ -110,4 +115,4 @@ Copyright (C) 2026 Tienef.
 Laya (Apache-2.0) and the LLM you use keep their own licences.
 
 If this work helps yours, please cite it:
-*Tienef, "jevs: an autonomous brain from Laya and an LLM", 2026.*
+*Tienef, "flickering-sign: an autonomous brain from Laya and an LLM", 2026.*
