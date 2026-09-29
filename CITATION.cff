@@ -9,11 +9,12 @@ abstract: >-
   boredom. Curiosity is not a module: the experiment watches whether it emerges.
 type: software
 authors:
-  - alias: Tienef
+  - family-names: Tienef
+    alias: Tienef
 repository-code: "https://github.com/tienef/flickering-sign"
 license: AGPL-3.0-only
-version: 0.1.0
-date-released: "2026-09-25"
+version: 0.1.1
+date-released: "2026-09-29"
 keywords:
   - cognitive architecture
   - large language models
