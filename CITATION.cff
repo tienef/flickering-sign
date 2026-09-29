@@ -11,6 +11,7 @@ type: software
 authors:
   - family-names: Tienef
     alias: Tienef
+doi: 10.5281/zenodo.23041524
 repository-code: "https://github.com/tienef/flickering-sign"
 license: AGPL-3.0-only
 version: 0.1.1

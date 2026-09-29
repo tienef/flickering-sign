@@ -1,5 +1,7 @@
 # flickering-sign — an autonomous brain from Laya + an LLM
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23041524.svg)](https://doi.org/10.5281/zenodo.23041524)
+
 > *"Blue-marked one, does the flickering sign mean the scale?"*
 >
 > — a mind in the valley, to another it could not name. The sign shows noise;
@@ -115,4 +117,5 @@ Copyright (C) 2026 Tienef.
 Laya (Apache-2.0) and the LLM you use keep their own licences.
 
 If this work helps yours, please cite it:
-*Tienef, "flickering-sign: an autonomous brain from Laya and an LLM", 2026.*
+*Tienef, "flickering-sign: an autonomous brain from Laya and an LLM", 2026.
+doi:[10.5281/zenodo.23041524](https://doi.org/10.5281/zenodo.23041524)* (all versions).
