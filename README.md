@@ -32,6 +32,38 @@ curiosity, friendship or cooperation is programmed: the experiment watches what 
 - How it works and the genome, illustrated (FR / EN / DE): [`docs/brain-schemas.html`](docs/brain-schemas.html),
   [`docs/brain-atlas.html`](docs/brain-atlas.html)
 
+## What it borrows from the human brain
+
+Not neurons: the brain's division of labour ([brain map](brain/BRAIN.md#brain-map)).
+
+| Level | In the project | In the human brain |
+|---|---|---|
+| fast | the gate (code) + a Laya head per mind, distilled each night | routines and habits (basal ganglia, striatum) |
+| middle | the LLM in one pass, no thinking | the fast read of the situation (cortex) |
+| slow | the same LLM, thinking | deliberation, intention, speech (prefrontal cortex, Broca's area) |
+
+- **Levels of control** (LeDoux, Norman & Shallice, Rasmussen, Stanovich): familiar choices are automatised at
+  sleep, as a skill stops needing thought.
+- **Attention:** a change, a failure, a surprise or an alarm catches it; an arbiter (the salience network) decides
+  who gets the slow level and what may interrupt it; a surprise freezes the body while the mind thinks (the
+  orienting reflex).
+- **Needs** are homeostatic variables in competition (sleep pressure damps boredom), and are felt, never read: the
+  LLM sees "restless; nothing new has happened in a while", not a number.
+- **Hormones** carry their known human effects, so the same input gives calm behaviour in one state and narrowed,
+  hurried behaviour in another: cortisol hands control to habit, adrenaline tags the moment for memory, oxytocin
+  eases loneliness, noradrenaline helps thinking up to a point (its inverted U).
+- **Memory:** a small working memory; episodes written in one trial when salient or new (Garcia's one-trial
+  learning), recalled from partial cues and by state (hunger brings back past meals); a wiki of notes, held as
+  hypotheses and dropped when the world goes against them.
+- **Sleep:** an adenosine-like pressure, entrained to the world's day, with melatonin (Borbély's two processes);
+  at night, replay and consolidation, unfinished intentions first (Wilhelm et al.).
+- **Cerebellum:** a forward model whose falling error is the only thing that relieves boredom. Noise is new but
+  never learnable: curiosity is left to emerge from this, with no curiosity module.
+- **Individuals:** the gains live in a genome, and each mind draws its temperament at birth.
+
+What it is not: no neurons, a frozen LLM that learns only through what it reads (notes, cues, intention), time in
+ticks, a body made of text. A behaviour is never taken for a real emotion.
+
 ## Run it with stubs (no model, any machine)
 
 The stub backends stand in for the LLM: deterministic, heuristic, stdlib only. They exercise the whole loop on the
