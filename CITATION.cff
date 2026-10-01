@@ -16,10 +16,8 @@ authors:
     alias: Tienef
 doi: 10.5281/zenodo.23041524
 repository-code: "https://github.com/tienef/flickering-sign"
-license:
-  - AGPL-3.0-only
-  - CC-BY-SA-4.0
-version: 0.2.0
+license: AGPL-3.0-only
+version: 0.2.1
 date-released: "2026-10-01"
 keywords:
   - cognitive architecture
