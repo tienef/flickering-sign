@@ -1,2 +1,2 @@
-# Box-bound code runs on Linux: keep LF everywhere (same convention as homelab-infra).
+# Keep LF everywhere: the code runs on Linux servers.
 * text=auto eol=lf

@@ -16,6 +16,15 @@ gives the three signals the rest of the brain runs on:
                 the context's error average, floored at 0) — the noradrenaline
                 signal. A well-learned context that suddenly breaks gives a lot.
 
+**Prior from the action (step 10c, `loop.predictor_prior`).** Without it a new
+context expects an error of 1, so a first discovery (a door that opens after sixty
+`use` that did nothing) gives no surprise and no progress. With it, the cerebellum
+also learns what each action does in general, by the outcome's *shape* (the outcome
+without the words of its situation), and judges a new context against that: the
+door is a big surprise, and a context starts from the error the prior made, so what
+the action already predicted ("I walked south, onto the ...") yields little progress
+and a real discovery yields all of its learning.
+
 Plus **uncertainty** (the context's error average before acting), the expected
 uncertainty acetylcholine tracks. Persisted in the bundle (`predictor.json`):
 the cerebellum is long-term, it survives sleep and shutdown.
@@ -70,20 +79,38 @@ def social_response(who: str, percepts, did: str | None = None) -> str:
     return "they were gone"
 
 
+_WORDS = re.compile(r"[a-z]+")
+
+
 class Predictor:
     def __init__(self, path, rate: float = 0.3, max_contexts: int = 5000,
-                 unpredictable_after: int = 4):
+                 unpredictable_after: int = 4, prior: bool = False, prior_after: int = 5):
         self.path = Path(path)
         self.rate = rate
         self.max_contexts = max_contexts
         self.unpredictable_after = unpredictable_after
+        self.prior, self.prior_after = prior, prior_after
         self.contexts: dict[str, dict] = {}
         self.places: dict[str, dict] = {}
+        self.actions: dict[str, dict] = {}        # step 10c: what each action does in general
         if self.path.exists():
             with open(self.path, encoding="utf-8") as f:
                 saved = json.load(f)
             self.contexts = saved.get("contexts", {})
             self.places = saved.get("places", {})
+            self.actions = saved.get("actions", {})
+
+    @staticmethod
+    def shape(situation: str, outcome: str) -> str:
+        """An outcome without the words of its situation: "I touched the floor. Nothing
+        happened." and "I touched the plank wall. Nothing happened." have one shape,
+        "I pushed the door and it swung open." another."""
+        known = set(_WORDS.findall(situation.lower()))
+        return " ".join(w for w in _WORDS.findall(outcome.lower()) if w not in known)
+
+    @staticmethod
+    def _action_key(situation: str, action: str) -> str:
+        return ("with" if situation.startswith("with ") else "act") + " || " + action
 
     @staticmethod
     def place(situation: str) -> str:
@@ -108,14 +135,16 @@ class Predictor:
         best = max(c["counts"], key=c["counts"].get)
         return best, c["counts"][best] / (c["n"] + 1), c["err"]
 
-    def expectations(self, situation: str, verbs) -> list[str]:
-        """What the mind expects each action to do here, for deliberation."""
+    def expectations(self, situation: str, verbs, by_verb: dict | None = None) -> list[str]:
+        """What the mind expects each action to do here, for deliberation (`by_verb`: an
+        action's own situation when the world gives one, e.g. what lies that way)."""
         out = []
         for v in verbs:
-            best, p, _ = self.predict(situation, v)
+            here = (by_verb or {}).get(v, situation)
+            best, p, _ = self.predict(here, v)
             if best:
                 out.append(f"{v}: {best} ({p:.0%} sure)")
-            elif (n := self.verdict(situation, v)):
+            elif (n := self.verdict(here, v)):
                 out.append(f"{v}: different every time so far ({n} tries here), no outcome has repeated")
         return out
 
@@ -132,15 +161,9 @@ class Predictor:
     def observe(self, situation: str, action: str, outcome: str) -> dict:
         k = self.key(situation, action)
         c = self.contexts.get(k)
-        if c is None:
-            if len(self.contexts) >= self.max_contexts:
-                return {"error": 1.0, "progress": 0.0, "surprise": 0.0, "uncertainty": 1.0, "new": True}
-            c = self.contexts[k] = {"counts": {}, "n": 0, "err": 1.0}
-            error, before = 1.0, 1.0
-        else:
-            before = c["err"]
-            # n + 1 in the denominator keeps room for an outcome never seen here
-            error = 1.0 - c["counts"].get(outcome, 0) / (c["n"] + 1)
+        prior = self._learn_action(situation, action, outcome) if self.prior else None
+        if c is None and len(self.contexts) >= self.max_contexts:
+            return {"error": 1.0, "progress": 0.0, "surprise": 0.0, "uncertainty": 1.0, "new": True}
         pk = self.key(self.place(situation), action)
         pl = self.places.setdefault(pk, {"n": 0, "distinct": 0, "seen": []})
         pl["n"] += 1
@@ -149,6 +172,23 @@ class Predictor:
             pl["distinct"] += 1
             if len(pl["seen"]) < 40:
                 pl["seen"].append(h)
+        if c is None and prior:
+            # a new context is judged against what the action does in general: expected
+            # to be `before` wrong, it was `error` wrong (the door that opens after sixty
+            # `use` that did nothing: a surprise). It starts from that error, so what the
+            # action already predicted is no news and yields little progress later.
+            before, error = prior
+            self.contexts[k] = {"counts": {outcome: 1}, "n": 1, "err": error}
+            return {"error": round(error, 4), "progress": 0.0,
+                    "surprise": round(max(0.0, error - before), 4),
+                    "uncertainty": round(before, 4), "new": True}
+        if c is None:
+            c = self.contexts[k] = {"counts": {}, "n": 0, "err": 1.0}
+            error, before = 1.0, 1.0
+        else:
+            before = c["err"]
+            # n + 1 in the denominator keeps room for an outcome never seen here
+            error = 1.0 - c["counts"].get(outcome, 0) / (c["n"] + 1)
         c["counts"][outcome] = c["counts"].get(outcome, 0) + 1
         c["n"] += 1
         c["err"] = before + self.rate * (error - before)
@@ -160,9 +200,25 @@ class Predictor:
             "new": c["n"] == 1,
         }
 
+    def _learn_action(self, situation: str, action: str, outcome: str) -> tuple[float, float] | None:
+        """Learn what the action does in general (by the outcome's shape); return
+        (its expected error, how wrong it was this time) once it has been tried
+        `prior_after` times, else None."""
+        a = self.actions.setdefault(self._action_key(situation, action), {"counts": {}, "n": 0, "err": 1.0})
+        sh = self.shape(situation, outcome)
+        error = 1.0 - a["counts"].get(sh, 0) / (a["n"] + 1)
+        prior = (a["err"], error) if a["n"] >= self.prior_after else None
+        a["counts"][sh] = a["counts"].get(sh, 0) + 1
+        a["n"] += 1
+        a["err"] += self.rate * (error - a["err"])
+        if len(a["counts"]) > 200:                         # keep the table small: drop the rarest shapes
+            for s, _ in sorted(a["counts"].items(), key=lambda kv: kv[1])[:50]:
+                a["counts"].pop(s)
+        return prior
+
     def save(self) -> None:
         tmp = self.path.with_suffix(".json.tmp")
         with open(tmp, "w", encoding="utf-8") as f:
-            json.dump({"rate": self.rate, "contexts": self.contexts, "places": self.places}, f,
-                      ensure_ascii=False)
+            json.dump({"rate": self.rate, "contexts": self.contexts, "places": self.places,
+                       "actions": self.actions}, f, ensure_ascii=False)
         os.replace(tmp, self.path)

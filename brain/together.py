@@ -33,7 +33,7 @@ import sys
 import time
 from pathlib import Path
 
-from .backends import make_fast, make_slow
+from .backends import make_fast, make_middle, make_slow
 from .brain import Brain
 from .bundle import Bundle
 from .digest import write_digest
@@ -50,8 +50,9 @@ def main(argv=None) -> int:
     ap.add_argument("--land", default=None, help="a land's data file (default brain/lands/first.json)")
     ap.add_argument("--bundle", action="append", required=True, help="a brain bundle (repeat)")
     ap.add_argument("--ticks", type=int, default=300, help="ticks to run; 0 = until stopped")
-    ap.add_argument("--fast", default="stub", help="System 1 backend: stub | laya")
-    ap.add_argument("--slow", default="stub", help="System 2 backend: stub | qwen (alias: openai)")
+    ap.add_argument("--fast", default="stub", help="System 1 backend: stub | laya | none (three levels: the head, step 3)")
+    ap.add_argument("--middle", default=None, help="three levels: the middle level, stub | qwen (genome `middle`)")
+    ap.add_argument("--slow", default="stub", help="System 2 backend: stub | qwen")
     ap.add_argument("--fast-device", default=None, help="override fast.device (cpu | cuda)")
     ap.add_argument("--think-budget", type=int, default=None)
     ap.add_argument("--model", default=None, help="override slow.model")
@@ -88,7 +89,10 @@ def main(argv=None) -> int:
         tmp.write_text(json.dumps(world.state(), indent=1), encoding="utf-8")
         tmp.replace(wstate)
 
-    fasts, brains, views = {}, [], []
+    if args.middle == "qwen":                                 # an optional GPU lease (genome `middle.lease`)
+        from .gpu_lease import text_lease_for
+        text_lease_for(bundles[0].config.get("middle", {}), args.name)
+    fasts, middles, brains, views = {}, {}, [], []
     for i, bundle in enumerate(bundles):
         slow_cfg = dict(bundle.config.get("slow", {}))
         if args.model:
@@ -105,7 +109,11 @@ def main(argv=None) -> int:
         key = json.dumps(fast_cfg, sort_keys=True)
         if key not in fasts:                                  # one System 1 per distinct config
             fasts[key] = make_fast(args.fast, seed=args.seed, cfg=fast_cfg)
-        brains.append(Brain(bundle, fasts[key], slow))
+        mid_cfg = dict(bundle.config.get("middle", {}))
+        mkey = json.dumps(mid_cfg, sort_keys=True)
+        if args.middle and mkey not in middles:               # one middle level per distinct config
+            middles[mkey] = make_middle(args.middle, seed=args.seed, cfg=mid_cfg)
+        brains.append(Brain(bundle, fasts[key], slow, middle=middles.get(mkey)))
         papers = load_archive(bundle.path) if archive else None
         views.append(world.join(bundle.name, papers=papers))
     save_world()
@@ -114,20 +122,26 @@ def main(argv=None) -> int:
     runs.mkdir(parents=True, exist_ok=True)
     switch = runs / f"{args.name}.jsonl"                      # read_control/write_control key off this
     logs = [open(runs / f"{args.name}.{n}.jsonl", "a", encoding="utf-8") for n in names]
+    # the world's own log (P3): the map once at each start, then one row per round (the inspector's map)
+    wlog = open(runs / f"{args.name}.world.jsonl", "a", encoding="utf-8") if hasattr(world, "world_row") else None
+    if wlog:
+        wlog.write(json.dumps({**world.world_meta(), "started": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                               "marks": {v.body.key: v.body.mark for v in views}}, ensure_ascii=False) + "\n")
+        wlog.flush()
     marks = {v.body.key: v.body.mark for v in views}
     lead = brains[0]
     pace = args.pace if args.pace is not None else float(lead.loop.get("seconds_per_tick", 1.0))
     save_every = int(lead.loop.get("save_every", 25))
     digest_every = int(lead.loop.get("digest_every", 86400))
     started = time.strftime("%Y-%m-%dT%H:%M:%S")
-    for brain, log in zip(brains, logs):
+    for brain, view, log in zip(brains, views, logs):
         log.write(json.dumps({"meta": {
             "bundle": brain.bundle.name, "world": world.name, "together": args.name,
             "mark": marks[brain.bundle.name],
             "others": {n: marks[n] for n in names if n != brain.bundle.name},
-            "control": f"{args.name}.control.json", "fast": brain.fast.name, "slow": brain.slow.name,
+            "control": f"{args.name}.control.json", "fast": getattr(brain.fast, "name", None), "middle": getattr(brain.middle, "name", None), "slow": brain.slow.name,
             "seed": args.seed, "resumed_at": brain.t, "started": started, "pace": pace,
-            "variant": brain.bundle.config.get("variant"),
+            "variant": brain.bundle.config.get("variant"), "genome": brain.declarations(getattr(view, "verbs", {})),
         }}) + "\n")
         log.flush()
 
@@ -197,6 +211,9 @@ def main(argv=None) -> int:
                                                      f"for {dp['ticks']} of its last {dp.get('of', dp['ticks'])} awake ticks"
                                                      + (f" ({dp['felt']})" if dp.get("felt") else "")})
             world.advance()
+            if wlog:
+                wlog.write(json.dumps(world.world_row(), ensure_ascii=False) + "\n")
+                wlog.flush()
             if pace:
                 time.sleep(max(0.0, pace - (time.monotonic() - t0)))
             if world.clock % save_every == 0:
@@ -213,6 +230,8 @@ def main(argv=None) -> int:
             b.slow.close()
         for log in logs:
             log.close()
+        if wlog:
+            wlog.close()
 
     print(f"\n{args.name}: {n} ticks, world clock {world.clock}")
     for b in brains:

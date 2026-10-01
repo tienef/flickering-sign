@@ -4,6 +4,7 @@ __pycache__/
 # run logs and brain bundles (each bundle is a brain's saved self, not source)
 runs/
 bundles/
+worlds/
 # secrets dropped next to a deployment (gateway key, boxctl token)
 *.env
 # the archive's corpus is rebuilt from the repo at deploy (deploy/build_origins.py)

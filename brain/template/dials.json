@@ -7,7 +7,12 @@
     "gains": {
       "prediction.progress": 1.0,
       "expectation.met": 0.3,
-      "novelty.amount": 0.1
+      "novelty.amount": 0.1,
+      "opioid": 0.2,
+      "oxytocin": 0.1,
+      "ghrelin": 0.2,
+      "cortisol": -0.2,
+      "effectance.amount": 0.3
     }
   },
   "noradrenaline": {
@@ -15,9 +20,14 @@
     "baseline": 0.2,
     "rate": 0.2,
     "gains": {
-      "drives:max": 0.4,
+      "drives:max": 0.1,
       "prediction.surprise": 0.6,
-      "expectation.mismatch": 0.2
+      "expectation.mismatch": 0.2,
+      "opioid": -0.2,
+      "adrenaline": 0.3,
+      "oxytocin": -0.2,
+      "hurt.amount": 0.5,
+      "drive:frustration": 0.3
     }
   },
   "acetylcholine": {
@@ -35,7 +45,97 @@
     "baseline": 0.7,
     "rate": 0.1,
     "gains": {
-      "drives:max": -0.5
+      "drives:max": 0.0,
+      "cortisol": -0.5
+    }
+  },
+  "orexin": {
+    "_doc": "Motivated wakefulness (lateral hypothalamus): surges with a surprise, an intention under way, bodily need or a broken expectation, and lingers (rate_down); holds the sleep/wake switch on wake. Its loss is narcolepsy: falling asleep in the middle of things. On the clock and silent in sleep (3k, isl7: 0.47-0.77 at night and asleep as by day): orexin neurons fire in active waking and fall silent in sleep (Lee, Hassani & Jones 2005; Mileykovskiy et al. 2005), their output follows the circadian clock, high in the active phase (Zeitzer et al. 2003): melatonin and a sleeping tick lower its target.",
+    "baseline": 0.1,
+    "rate": 0.5,
+    "rate_down": 0.05,
+    "gains": {
+      "prediction.surprise": 1.0,
+      "intention.pull": 0.6,
+      "drive:food": 0.5,
+      "drive:cold": 0.5,
+      "expectation.mismatch": 0.3,
+      "cortisol": 0.2,
+      "ghrelin": 0.3,
+      "drive:thirst": 0.5,
+      "drive:pain": 0.3,
+      "melatonin": -0.3,
+      "sleep_tick": -0.5
+    }
+  },
+  "opioid": {
+    "_doc": "Endogenous opioids: 'liking', the pleasure of consummation, not 'wanting' (dopamine). Surges when the mind eats, gets a task done, sees an expectation come true, or understands something (learning progress); lingers a few minutes (rate_down). Soothes boredom and loneliness, calms noradrenaline, lifts dopamine. Calibrated on s3's sleep-arm frames: learning progress dominates (0.03 per awake tick), so its gain is 0.5 (level ~0.08 in the rooms), keeping 'liking' mostly consummatory. P3: a blow (`hurt`) releases them too (stress-induced analgesia), which eases pain.",
+    "baseline": 0.05,
+    "rate": 0.5,
+    "rate_down": 0.05,
+    "gains": {
+      "ate.amount": 2.0,
+      "task_done": 0.6,
+      "expectation.met": 0.3,
+      "prediction.progress": 0.5,
+      "hurt.amount": 1.5
+    }
+  },
+  "adrenaline": {
+    "_doc": "Epinephrine: fast arousal (surprise, broken expectations, an exciting success), gone in a minute or two; tags the moments just before it for memory.",
+    "baseline": 0.05,
+    "rate": 0.6,
+    "rate_down": 0.05,
+    "gains": {
+      "prediction.surprise": 1.0,
+      "expectation.mismatch": 0.3,
+      "task_done": 0.3,
+      "hurt.amount": 1.5,
+      "drive:frustration": 0.2
+    }
+  },
+  "cortisol": {
+    "_doc": "Slow stress (the HPA axis): rises over minutes with a need that lasts, actions that change nothing (uncontrollability, Dickerson & Kemeny 2004) and a world that keeps breaking expectations; falls slowly (rate_down), and sleep lowers it. Takes the tonic part that noradrenaline used to carry. Its own negative feedback (3k): cortisol damps its own release (glucocorticoid feedback on the hypothalamus and pituitary, Keller-Wood & Dallman 1984; de Kloet et al. 2005); the dial reads its own previous level. Replayed on isl7: a body in lasting need (bir) 0.52 -> 0.38 by day, max 0.61 -> 0.45; the others ~25% lower, the rises kept.",
+    "baseline": 0.1,
+    "rate": 0.02,
+    "rate_down": 0.01,
+    "gains": {
+      "drives:max": 0.5,
+      "intention_spent": 0.3,
+      "expectation.mismatch": 0.3,
+      "prediction.surprise": 0.2,
+      "sleep_tick": -0.2,
+      "drive:pain": 0.4,
+      "cortisol": -0.4,
+      "drive:frustration": 0.1
+    }
+  },
+  "oxytocin": {
+    "_doc": "Bonding: rises with contact (someone near, an arrival, a call, words), lingers; eases loneliness, calms, makes company rewarding and memorable.",
+    "baseline": 0.05,
+    "rate": 0.3,
+    "rate_down": 0.02,
+    "gains": {
+      "contact.amount": 2.0
+    }
+  },
+  "ghrelin": {
+    "_doc": "Ghrelin, modelled on its known human effects: secreted by the empty stomach, it rises with the energy deficit BEFORE hunger is felt (level:food, not the felt urgency; Cummings et al. 2001: the preprandial rise) and falls fast after a meal, by its size (ate.amount; rate_down).",
+    "baseline": 0.05,
+    "rate": 0.1,
+    "rate_down": 0.3,
+    "gains": {
+      "level:food": 1.0,
+      "ate.amount": -3.0
+    }
+  },
+  "melatonin": {
+    "_doc": "The circadian signal (pineal gland, P3): rises in the dark (the world's `dark`: full at night, half by a fire's light, a little in the evening), falls fast in light (rate_down). As in humans it does not make one tired (that is sleep pressure, adenosine-like): it opens the sleep gate in the evening (knob sleep_possible_above) and holds sleep through the night (knob wake_below), Borbely's two-process model. Worlds without `dark` leave it at 0.",
+    "baseline": 0.0,
+    "rate": 0.15,
+    "rate_down": 0.3,
+    "gains": {
+      "dark.amount": 1.0
     }
   }
 }

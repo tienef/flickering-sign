@@ -1,5 +1,5 @@
 {
-  "_doc": "Identity, loop settings and knobs. Keys starting with _ are ignored. See BRAIN.md.",
+  "_doc": "Identity, loop settings and knobs of the three-level mind (PLAN 1.1, P1 step 4): fast = code + a per-mind Laya head, middle = the LLM in one pass, slow = the same LLM thinking. Merged on 2026-09-30 from the old template, variants/cues4.json (appetite2 inside), habits2's adrenaline and effectance, and the hormones built before (cortisol, oxytocin, ghrelin; speech through the slow level); Laya-era knobs removed (goal_bias, cue_act_pull; choice_temperature rescaled to the letters). Keys starting with _ are ignored. See BRAIN.md.",
   "name": "template",
   "loop": {
     "save_every": 25,
@@ -12,7 +12,6 @@
     "need_escalation_every": 10,
     "sleep_possible_above": 0.5,
     "recency_tau": 300,
-    "recall_for_laya": 1,
     "recall_for_qwen": 3,
     "sleep_wait_seconds": 2.0,
     "recall_min_similarity": 0.3,
@@ -22,33 +21,193 @@
     "digest_every": 86400,
     "distress_warn_after": 120,
     "distress_pause_after": 600,
-    "_doc_time": "World time: one tick = seconds_per_tick seconds (the default --pace), so 60 ticks = a minute and digest_every 86400 = a world day. The distress guard counts awake ticks in a row in a drive's worst felt band: warn after distress_warn_after, pause the world after distress_pause_after."
+    "_doc_time": "World time: one tick = seconds_per_tick seconds (the default --pace), so 60 ticks = a minute and digest_every 86400 = a world day. The distress guard counts awake ticks in a row in a drive's worst felt band: warn after distress_warn_after, pause the world after distress_pause_after.",
+    "review_window": 6,
+    "retire_after": 2,
+    "predictor_prior": true,
+    "escalate_if_surprise_above": 0.5,
+    "tasks": true,
+    "task_ttl": 1200,
+    "intentions": {
+      "_doc": "3n Q1 (owner 2026-10-01, after isl12: oxa and vip starved holding 10 things while 7 of their 11 plans to set one down were cut, and the landed ones faded while they slept): an intention outlives its moment while its motive holds, on the horizons memory already has. Immediate: a thought cut because another was asked meanwhile still lands if it was asked within late_within ticks, the mind's motive (its most urgent drive) is the one it was asked under, and no thought has landed since (the interrupted task stays active: Zeigarnik 1927; intention superiority, Goschke & Kuhl 1993). Across sleep (through_sleep): the goal line does not fade while asleep, and at waking it is kept, held afresh, if its motive's urgency is still >= keep_above, else let go; falling asleep with a goal writes the episode 'Before I slept, I still meant to: ...' with strength 1 + unfinished_tag, so the night's consolidation sees it among the first (memories relevant to the future are consolidated first in sleep, Wilhelm et al. 2011; sleep helps carry out an intention later, Scullin & McDaniel 2010). Nothing new at the consolidated horizon: the notes and cues the sleep writes may take it up (an if-then plan, Gollwitzer 1999).",
+      "late_within": 240,
+      "through_sleep": true,
+      "keep_above": 0.5,
+      "unfinished_tag": 0.3
+    },
+    "dials_as_events": [
+      "opioid",
+      "adrenaline",
+      "cortisol",
+      "oxytocin",
+      "ghrelin"
+    ],
+    "food_cue": {
+      "_doc": "Three levels: no pull in code (gain 0, no approach, no search: the middle level reads hunger and what is in front; very hungry with bread in front it takes it at 0.99). Kept: the sight of food bids for the slow level when hungry (the cephalic phase), hunger's recall of the memories of eating (recall_above), and ghrelin's incentive salience through the food_cue_gain knob.",
+      "drive": "food",
+      "gain": 0.0,
+      "bid": 0.6,
+      "bid_above": 0.5,
+      "recall_above": 0.5
+    },
+    "recall_index": {
+      "_doc": "Recall by cues written at sleep (brain/recall_index.py). Cue prompt v3 and habituation after cues2 (clutter 45% and 26%): on s10-s16 (probe/vector_recall.py score --no-fitness --tag v3 --fixed 0.70) a note on 7.8% of awake ticks, per mind p50 0.07, p90 0.18, max 0.39 (v1 at 0.722: 10%, p50 0.03, p90 0.37, max 0.94). min_similarity: the cue must be above it; habituate_above: at each rebuild, a cue above min_similarity on more than this share of the awake moments since the last rebuild is left out of the index (it stays in the wiki). near: the percepts that make the query. v4: acts_did_top = per action, how many of its most frequent outcomes the cue writing reads. Three levels: every recalled line reaches the middle level as 'I know: ...' (Laya's 'with_act' filter is gone: Qwen does not follow a line where the act does nothing).",
+      "kind": "cues",
+      "model": "BAAI/bge-small-en-v1.5",
+      "device": "cuda",
+      "min_similarity": 0.7,
+      "near": [
+        "In front of me:",
+        "I carry",
+        "I hold",
+        "At my feet"
+      ],
+      "habituate_above": 0.15,
+      "acts_did_top": 8
+    },
+    "recall_for_laya": 1,
+    "tag_window": 10,
+    "effectance": {
+      "birth": [
+        0.8,
+        1.0
+      ],
+      "floor": [
+        0.1,
+        0.5
+      ],
+      "half_life": [
+        2000,
+        10000
+      ],
+      "habituation": 6.0,
+      "recovery_per_sleep": 0.5
+    },
+    "speech_via_slow": true,
+    "recent_for_fast": 3,
+    "_doc_recent": "recent_for_fast: the last working-memory items the fast and middle levels read as 'A moment ago' (P1 smoke: what a look showed was gone by the next choice, behind 'I waited').",
+    "need_cues": [
+      {
+        "by": "drink_by_verb",
+        "drive": "thirst",
+        "above": 0.5,
+        "bid": 0.6
+      },
+      {
+        "by": "food_by_verb",
+        "drive": "food",
+        "above": 0.5
+      }
+    ],
+    "_doc_need_cues": "need_cues (3n I5, isl11: abu, very thirsty, walked past a spring beside it): what relieves a felt need coming into view (the world's `by` on the percept: the acts that lead to it, in front or beside) flags the gate (fast.gate.signals.relief x the need's urgency) and may bid for the slow level (`bid` x urgency; food keeps its food_cue bid). Thirst makes water cues wanted as hunger does food (Berridge 2004). Replay: beside, 38% of water sightings and 22% of food ones were not flagged."
   },
   "fast": {
-    "_doc": "System 1 (LayaFast). mode: values (a value per action channel, action sampled at the choice_temperature knob) | choice (one multiple-choice question; perseverates, kept for comparison). device: cuda (a ~1.4 GiB fp16 sidecar; falls back to CPU by itself) | cpu. checkpoints: load only these (all three would be ~2.3 GB). half: fp16 weights on cuda.",
-    "mode": "values",
+    "_doc": "The fast level (PLAN 1.1): generic code decides each tick whether the moment calls for a new choice (brain.py _gate_signals: each signal at its weight, the tick's salience = the strongest, flagged at the gate_above knob); if not, the body carries on (repeat the act while it changes something, else follow the intention's act, else idle). A per-mind Laya head (the striatum; Laya `english`, choice mode, fp16 on the card, no salience question) proposes on the flagged ticks and is distilled at each sleep from the middle level's choices (habits.distill_night); mode observe: it proposes, the middle level decides; decide: it acts alone when sure and trusted (see habits.HEAD_DEFAULTS). Run with --fast laya (or none: no head).",
+    "gate": {
+      "_doc": "Signal weights (0 = off). front, woke, addressed, surprise (x its size) always flag; novel alone flags only when arousal lowers gate_above; long checks the routine every long_after ticks. need: a drive at urgency >= need_above re-flags every need_every ticks (P1 smoke: very hungry, the mind looked once then waited 29 ticks for `long`). need_every falls to need_every_min as the urgency rises to 1 (isl2: 5 ticks between reminders left a very hungry body idle). need_ignores: drives whose urgency does not re-flag (3k: sleep pressure goes to the sleep switch, the doze knob, not to a deliberation).",
+      "signals": {
+        "woke": 1.0,
+        "front": 1.0,
+        "addressed": 1.0,
+        "surprise": 1.0,
+        "alarm": 0.9,
+        "effect": 0.8,
+        "heard": 0.7,
+        "intention": 0.7,
+        "others": 0.6,
+        "fail": 0.6,
+        "long": 0.5,
+        "novel": 0.4,
+        "need": 0.8,
+        "relief": 0.8
+      },
+      "above": 0.45,
+      "long_after": 30,
+      "fail_ignores": [
+        "wait",
+        "look",
+        "speak"
+      ],
+      "need_above": 0.5,
+      "need_every": 5,
+      "need_every_min": 3,
+      "need_ignores": [
+        "frustration",
+        "sleep_pressure"
+      ]
+    },
+    "carry": {
+      "_doc": "repeat: the last act again while it changes something; follow: the intention's act; search: the verbs a restless body goes on instead of idling (the restless knob: the chance a tick; the same way until it changes nothing); idle: else the first of these offered. stuck_above: from this frustration level the carry-on stops following the intention's act into what it just failed at (3n I2).",
+      "repeat": true,
+      "follow": true,
+      "idle": [
+        "wait",
+        "rest"
+      ],
+      "search": [
+        "north",
+        "east",
+        "south",
+        "west"
+      ],
+      "stuck_above": 0.4
+    },
+    "head": {
+      "mode": "observe"
+    },
+    "mode": "choice",
     "device": "cuda",
     "checkpoints": [
       "english"
     ],
-    "half": true
+    "half": true,
+    "salience": false
   },
   "slow": {
-    "_doc": "System 2 (QwenSlow, backend 'qwen' or 'openai'). model: the name your OpenAI-compatible endpoint gives the model (built with a Qwen 27B with budgeted thinking; any capable instruction model should work). think / think_budget: Qwen's thinking switch and thinking tokens per request (other servers ignore them). env_file: where BRAIN_GATEWAY_URL / BRAIN_GATEWAY_KEY are read when not in the environment. The system prompt shapes what the mind takes itself to be: it deliberately says nothing about AI, brains, simulations, curiosity or questions. Changing it is changing the experiment. consolidation_prompt: what sleep does with the day's episodes; same caution.",
-    "model": "qwen3-32b",
+    "_doc": "The slow level (QwenSlow): the same LLM as the middle level, thinking. url as `middle` (vLLM ignores a thinking budget: max_tokens caps a thought). The system prompt shapes what the mind takes itself to be: it says nothing about AI, brains, simulations, curiosity or questions. Changing it is changing the experiment. consolidation_prompt, review_prompt, cue_prompt: what sleep does; same caution. reasoning_effort low (P1 smoke: without it every third thought ran into max_tokens, ~3,000 tokens and 50-60 s, and gave no JSON). json_schema: the reply's shape imposed by vLLM after the thinking (owner 2026-09-30), acts limited to the body's actions. think_at_night false: the night's jobs without thinking (a consolidation of 60 episodes: 6.6 s, vs 137 s and 5,262 tokens thinking, whose notes were richer, e.g. the door's rule): the mind waits on them asleep while its body's needs rise.",
+    "model": "qwen38-27b-uncensored",
     "think": true,
     "max_tokens": 2000,
     "timeout_s": 300,
     "env_file": ".brain.env",
-    "system_prompt": "You are the slow, deliberate part of a mind. A faster part of the same mind handles moment-to-moment reactions; it has called on you because it is unsure what to do. You receive what the mind senses right now, what it has just experienced, how it feels, its current goal and the actions available to it. Think it through, then reply with ONE JSON object and nothing else:\n{\"goal\": \"one short line: what the mind should aim for or watch for next. It becomes the mind's goal.\", \"action\": \"one of the available actions to take now, or null to leave the choice to the fast part\", \"expectation\": \"one short line: what you expect to happen\", \"expectation_met\": \"true or false: did the mind's previous expectation (if shown) come true? null if none was shown\"}",
+    "system_prompt": "You are the slow, deliberate part of a mind. A faster part of the same mind handles moment-to-moment reactions; it has called on you because it is unsure what to do. You receive what the mind senses right now, what it has just experienced, how it feels, its current goal and the actions available to it. Think it through, then reply with ONE JSON object and nothing else:\n{\"task\": \"one short line: what the mind is trying to get done for now. Keep the current task (if shown) unless it is done or no longer worth pursuing\", \"task_done\": \"true or false: has the current task (if shown) just been achieved?\", \"goal\": \"one short line: the next step toward the task, or what the mind should watch for. It becomes the mind's goal.\", \"action\": \"one of the available actions to take now, or null to leave the choice to the fast part\", \"words\": \"if the action is speak: the words to say aloud; otherwise null\", \"expectation\": \"one short line: what you expect to happen\", \"expectation_met\": \"true or false: did the mind's previous expectation (if shown) come true? null if none was shown\"}",
     "consolidate_max_episodes": 60,
     "consolidation_max_tokens": 4000,
     "consolidation_prompt": "You are the part of a mind that works while it sleeps: you turn the experiences it had since its last sleep into lasting knowledge. You receive those experiences, the notes the mind already keeps, and anything that did not add up before. Return only the notes you add or revise: keep a note's exact title to revise it, and keep each note to a few plain sentences grounded in the experiences. Reply with ONE JSON object and nothing else:\n{\"notes\": [{\"title\": \"short title\", \"text\": \"what the mind now knows about it\"}], \"contradictions\": [\"one line for each thing the experiences contradict that you could not reconcile\"], \"resolved\": [\"copy each earlier thing that did not add up and is now explained\"]}",
-    "think_budget": 512
+    "review_prompt": "You are the part of a mind that works while it sleeps. Before the experiences it had since its last sleep are turned into lasting knowledge, you check the notes it already keeps against them. For each note, say whether those experiences bore it out (held), went against it (failed), or said nothing about it (untested). Judge only from the experiences. Reply with ONE JSON object and nothing else:\n{\"verdicts\": [{\"title\": \"the note's exact title\", \"verdict\": \"held, failed or untested\"}]}",
+    "cue_prompt": "You are the part of a mind that works while it sleeps: you prepare what it knows so that it comes back to mind at the right moment. You receive the notes the mind keeps and the actions its body can take. For each note, write the moments when what it says will matter, and one short line it should recall at each. Name a moment by the thing the mind would then sense, in a few plain words: what is in front of it, or what it carries or holds, the thing the note is about. Not what the mind wants, feels, plans or does not know: that is not sensed. Something sensed almost all the time makes a moment only if the note is about that very thing. A note may have several moments, or none. Use the mind's own plain words, as the notes do. Then give each moment the body's action by which the mind does what the line says, as it did it before (\"What my acts did\" lists what each action did, from its memories), or \"none\" when the line is not something to do (where things are, what to avoid, what something is). Only an action the body can take; when it takes several, the first one to do at that moment. Reply with ONE JSON object and nothing else:\n{\"cues\": [{\"title\": \"the note's exact title\", \"when\": \"the thing sensed at that moment, in a few words\", \"recall\": \"one short line to recall then\", \"act\": \"one of the body's actions, or none\"}]}",
+    "url": "http://127.0.0.1:8000/v1",
+    "reasoning_effort": "low",
+    "json_schema": true,
+    "think_at_night": false,
+    "effort": {
+      "_doc": "3n I6: the effort per thought, from knobs.think_effort + stakes_gain x the bid's value: below 0.25 none (no thinking), below 0.7 low, above medium (its own cap: the thinking and the reply share max_tokens; at 2,000 one medium thought had no reply). A thought whose thinking used up the cap is asked once more without thinking. The night's jobs keep think_at_night. dark_only (owner 2026-10-01, after isl12: medium took 40-90 s, 80-180 ticks of carry-on at pace 0.5, and put the thought p50 over 30 s): these efforts only while the body senses the dark (the entrainment's dark), else the band below; the night's awake thoughts are where a long one costs the body least.",
+      "stakes_gain": 0.5,
+      "dark_only": [
+        "medium"
+      ],
+      "bands": [
+        [
+          0.25,
+          "none"
+        ],
+        [
+          0.7,
+          "low"
+        ],
+        [
+          9.0,
+          "medium"
+        ]
+      ],
+      "max_tokens": {
+        "medium": 3000
+      }
+    }
   },
   "internal_verbs": {
     "rest": "pause and do nothing for a moment",
-    "sleep": "close off the senses and sleep"
+    "sleep": "lie down and sleep until I am rested"
   },
   "knobs": {
     "_doc": "knob = clamp(base + sum(coeff * signal), min, max). Signals: dial names, drive:<name> urgency, drives:max, <event>.<field>.",
@@ -58,7 +217,8 @@
       "noradrenaline": -0.35,
       "drive:hunger": -0.4,
       "min": 0.05,
-      "max": 0.9
+      "max": 0.9,
+      "cortisol": -0.2
     },
     "qwen_temperature": {
       "base": 0.4,
@@ -68,18 +228,208 @@
       "max": 1.0
     },
     "choice_temperature": {
-      "base": 0.12,
-      "dopamine": 0.1,
-      "noradrenaline": -0.08,
-      "min": 0.03,
-      "max": 0.4
+      "_doc": "The middle level's draw over the letters' odds (1 = the model's own): dopamine explores, noradrenaline and cortisol exploit (Aston-Jones & Cohen 2005; stress narrows choice). Frustration raises it (3n I2: behaviour varies after repeated failure).",
+      "base": 0.8,
+      "dopamine": 0.5,
+      "noradrenaline": -0.4,
+      "cortisol": -0.2,
+      "min": 0.3,
+      "max": 1.5,
+      "drive:frustration": 0.4
     },
     "write_above": {
       "base": 0.6,
       "dopamine": -0.3,
       "acetylcholine": -0.2,
       "min": 0.1,
-      "max": 0.95
+      "max": 0.95,
+      "opioid": 0.1,
+      "cortisol": -0.15,
+      "ghrelin": -0.1
+    },
+    "interrupt_margin": {
+      "base": 0.1,
+      "serotonin": 0.2,
+      "noradrenaline": -0.15,
+      "min": 0.0,
+      "max": 0.6,
+      "drive:frustration": 0.4,
+      "_doc": "How much a new bid must beat the thought in flight to interrupt it. Frustration raises it (3n I2: a thought about what keeps failing is cut only by an alarm; isl10: 53 of 127 thoughts cut)."
+    },
+    "rest_after_thought": {
+      "base": 14,
+      "serotonin": 10,
+      "noradrenaline": -10,
+      "min": 0,
+      "max": 30
+    },
+    "sleep_possible_above": {
+      "_doc": "The sleep gate (step 10j): sleep is offered to System 1 only above this pressure; arousal raises it. Collapse at 1.0 stays. Melatonin lowers it in the dark (P3): the evening opens the gate.",
+      "base": 0.75,
+      "orexin": 0.25,
+      "noradrenaline": 0.05,
+      "min": 0.35,
+      "max": 0.97,
+      "adrenaline": 0.05,
+      "cortisol": 0.1,
+      "melatonin": -0.3
+    },
+    "gate_above": {
+      "_doc": "The fast level's threshold: the salience at which a moment calls for a new choice. Noradrenaline (the locus coeruleus: arousal makes the new and the changed win attention) and acetylcholine (attention to the senses) lower it; cortisol raises it (stress shifts control from goal-directed choice to habit, Schwabe & Wolf 2009).",
+      "base": 0.45,
+      "noradrenaline": -0.2,
+      "acetylcholine": -0.1,
+      "cortisol": 0.2,
+      "min": 0.1,
+      "max": 0.9
+    },
+    "emotional_tag": {
+      "_doc": "Added to the strength of the last tag_window ticks' episodes by an adrenaline surge (McGaugh). Only surges above 0.4 tag: calibrated on s5's frames, 22% of episodes tagged, 28 of 45 door openings.",
+      "base": -0.4,
+      "adrenaline": 1.0,
+      "min": 0.0,
+      "max": 0.5
+    },
+    "recall_scale": {
+      "_doc": "Stress impairs retrieval (de Quervain 1998): fewer memories come back.",
+      "base": 1.0,
+      "cortisol": -0.6,
+      "min": 0.3,
+      "max": 1.0
+    },
+    "sleep_depth": {
+      "_doc": "How restoring sleep is: cortisol thins deep sleep.",
+      "base": 1.0,
+      "cortisol": -0.5,
+      "min": 0.3,
+      "max": 1.0
+    },
+    "social_tag": {
+      "_doc": "Added to the strength of an episode with someone in it (Rimmele 2009).",
+      "base": 0.0,
+      "oxytocin": 0.3,
+      "min": 0.0,
+      "max": 0.3
+    },
+    "food_cue_gain": {
+      "_doc": "Ghrelin raises the wanting of food in sight (Malik et al. 2008): added to the log-probability of the acts that lead to it, times hunger; 0 without ghrelin.",
+      "base": 0.0,
+      "ghrelin": 0.5,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "wake_below": {
+      "_doc": "The wake threshold (P3; was loop.wake_below 0.15): asleep, the mind wakes when sleep pressure falls to it. Melatonin lowers it below 0 in the dark, so a night's sleep lasts until dawn (Borbely's two processes); by day a nap ends at 0.15 as before.",
+      "base": 0.15,
+      "melatonin": -0.3,
+      "min": -0.05,
+      "max": 0.3
+    },
+    "restless": {
+      "_doc": "The chance a tick that the body, with nothing to do (the carry-on's idle), searches instead of waiting: it goes on one of fast.carry.search's verbs (P3, isl2: very hungry minds waited 35-50% of their awake ticks). Modelled on food-seeking agitation: an energy or water deficit raises locomotion and foraging, through ghrelin and orexin (Jerlhag 2007; Mieda & Yanagisawa 2002, orexin needed for the activity rise of fasting); the night's melatonin and sleep pressure damp it.",
+      "base": -0.3,
+      "drive:food": 0.4,
+      "drive:thirst": 0.4,
+      "ghrelin": 0.3,
+      "orexin": 0.2,
+      "melatonin": -0.5,
+      "drive:sleep_pressure": -0.3,
+      "min": 0.0,
+      "max": 0.9
+    },
+    "doze": {
+      "_doc": "The chance a tick that the body, with nothing to do (the carry-on's idle) and sleep offered (sleep pressure above sleep_possible_above), falls asleep (3k, isl7: at night the carry-on waited on 126 of 175 offered ticks, the middle level never asked, and offered sleep was taken 3% of the time). Falling asleep is not a decision: with nothing to do, in the dark, with pressure, the sleep switch flips (the VLPO flip-flop, Saper et al. 2001, 2005); sleep latency shortens with the pressure and at the evening's sleep gate (Lavie 1986; the MSLT, Carskadon & Dement). Melatonin and the pressure raise it, orexin lowers it; by day (melatonin 0) it stays near 0: a nap stays a choice or a collapse.",
+      "base": -0.2,
+      "melatonin": 0.6,
+      "drive:sleep_pressure": 0.4,
+      "orexin": -0.3,
+      "min": 0.0,
+      "max": 0.9
+    },
+    "think_effort": {
+      "_doc": "The effort a thought gets (3n I6, owner 2026-10-01), read with slow.effort: this knob + stakes_gain x the bid's value, against the bands (none / low / medium). Mental effort is spent by its expected value against its cost (Shenhav, Botvinick & Cohen 2013; Kurzban et al. 2013); noradrenaline helps up to a point then hinders (an inverted U, Aston-Jones & Cohen 2005; high arousal shifts control to habit, Arnsten 2009); compute hunger and a pressing need make it a quick thought. Benched (probe/effort_bench.py, 12 logged thoughts, alone on the engine): none 2.4 s, low 19.2 s, medium 26.7 s p50.",
+      "base": 0.35,
+      "noradrenaline": 0.3,
+      "noradrenaline>0.6": -0.9,
+      "drive:hunger": -0.4,
+      "drives:max": -0.3,
+      "min": 0.0,
+      "max": 1.0
     }
+  },
+  "traces": {
+    "_doc": "Learning within the day (P3, owner 2026-09-30; docs Consolidation section 06; brain.py _strong_moment): when an act relieves a need at once (its level falls by relief_above beyond the drift) or makes one worse (rises by harm_above), a provisional trace goes into the cue index at once: when = what was near (the index's own query), recall = 'Here: <the world's words> <relieved / worsened phrase>', act = the act for a relief, none for a harm; a relief also credits the last act before it that changed what is held or the world, within chain_ticks (taking the food, then eating it). Recalled like a note (the middle level's 'I know' line, the slow level's notes) until the index is rebuilt after the night's consolidation, which reads them ('What struck the mind in the moment today'). Only the drives named in relieved / worsened (the body's needs) leave traces. At most max_per_day between two consolidations. Off in the template; the arm's overlay variants/traces.json turns it on. Benched before (isl6b frames, 2026-09-30): thirsty at the sea, P(drink) 0.95 -> 0.08 with the sea-water trace; P(take) at mussels 0.71 -> 0.75 with the meal's; the same lines in front of a tree move nothing (0.03 -> 0.01, 0.10 -> 0.06).",
+    "on": false,
+    "relief_above": 0.08,
+    "harm_above": 0.05,
+    "chain_ticks": 6,
+    "max_per_day": 12,
+    "relieved": {
+      "food": "My hunger eased.",
+      "thirst": "My thirst eased.",
+      "cold": "I felt warmer.",
+      "pain": "The pain eased."
+    },
+    "worsened": {
+      "food": "I felt hungrier.",
+      "thirst": "My thirst got worse.",
+      "cold": "I felt colder.",
+      "pain": "It hurt."
+    }
+  },
+  "attention": {
+    "weights": {
+      "worst_band": 1.0,
+      "surprise": 0.9,
+      "addressed": 0.8,
+      "need": 0.6,
+      "low_confidence": 0.3,
+      "intention_spent": 0.6,
+      "to_speak": 0.7,
+      "stuck": 0.8
+    },
+    "half_life": 20,
+    "bid_floor": 0.05,
+    "cannot_interrupt": [
+      "low confidence"
+    ],
+    "freeze_verbs": [
+      "look",
+      "wait"
+    ],
+    "freeze_max": 30,
+    "rest_blocks": [
+      "low confidence",
+      "unmet need"
+    ]
+  },
+  "middle": {
+    "_doc": "The middle level (QwenFast): the LLM in one pass, no thinking, the letters' odds. url: a vLLM server (it must return log-probabilities; built with Qwen3.8-27B, an uncensored FP8 build, `--language-model-only`), which also serves the slow level; model: the name the server gives it; lease: an optional GPU lease key (gpu_lease.py), null to run your own server. system_prompt and question are the benched ones (probe/one_model.py); changing them changes the experiment. The act is drawn at the choice_temperature knob.",
+    "model": "qwen38-27b-uncensored",
+    "url": "http://127.0.0.1:8000/v1",
+    "lease": null,
+    "timeout_s": 60
+  },
+  "entrain": {
+    "_doc": "Entrainment (3k): the body measures its world's day (the run of light between two darks, the world's `dark`, which melatonin reads) and its sleep pressure's rise a waking tick, and at each nightfall moves the drive's pace (`adapt` of the way, measures smoothed over days by `smooth`) toward the pace that fills it to `target` by nightfall; bounded by min and max; starts at `init`. Worlds without `dark` leave the pace at init. The owner, 2026-09-30: the calibration should be detected by the brain. Replay on isl7 (sleep_sim.py): from init 0.6, 82-92% of night asleep; from 1.0 or 1.5, 19-68%: it refines an inherited pace, it does not find one from far.",
+    "on": true,
+    "drive": "sleep_pressure",
+    "signal": "dark.amount",
+    "dark_above": 0.5,
+    "target": 0.75,
+    "adapt": 0.5,
+    "smooth": 0.3,
+    "min": 0.3,
+    "max": 2.0,
+    "min_light": 30,
+    "init": 1.0
+  },
+  "stuck": {
+    "_doc": "Frustration's events (3n I2; brain.py _stuck_step): an act that changed nothing (the world's `changed`, as the gate's `fail`; not fast.gate.fail_ignores) while a goal, a task or a need at active_above is wanted emits `thwarted` (amount `same` when the same act meets the same thing within same_within ticks, else 1); an act with an effect `gained`, one that changed something else `went`. The drive that integrates them is `drive` (drives.json). While it is felt, the slow level reads what keeps failing, counted.",
+    "on": true,
+    "drive": "frustration",
+    "active_above": 0.5,
+    "same": 1.5,
+    "same_within": 10
   }
 }

@@ -1,0 +1,1607 @@
+{
+ "_doc": "The island (P3, owner 2026-09-30): the wild land's tiles, creatures and chains on an island in a salt sea: beaches, meadow, forest, hills with a few caves (a natural roof), a marsh; fresh water only in a pond, a few springs and marsh pools; the walled garden whose heavy gate needs two; mist banks over parts of the interior that lift for good when someone comes near; no shelter, no shelf of papers. Minds wake scattered along one stretch of the shore, sharing its springs. None of it is told to the mind.",
+ "name": "island",
+ "size": [
+  60,
+  60
+ ],
+ "seed_note": "Generated per seed by Land._generate_island (deploy/probe/make_island.py writes this file).",
+ "day_ticks": 180,
+ "night_from": 0.7,
+ "tiles": {
+  ".": {
+   "name": "grass"
+  },
+  ",": {
+   "name": "tall grass",
+   "desc": "tall grass with seed heads"
+  },
+  ":": {
+   "name": "dirt",
+   "desc": "bare dirt"
+  },
+  "s": {
+   "name": "sand"
+  },
+  "~": {
+   "name": "sea",
+   "solid": true,
+   "desc": "the sea, grey-green and restless"
+  },
+  "T": {
+   "name": "tree",
+   "solid": true,
+   "desc": "a tree"
+  },
+  "t": {
+   "name": "sapling",
+   "desc": "a young sapling"
+  },
+  "u": {
+   "name": "stump",
+   "desc": "a tree stump"
+  },
+  "B": {
+   "name": "berry bush",
+   "solid": true,
+   "desc": "a bush with red berries"
+  },
+  "b": {
+   "name": "bare bush",
+   "solid": true,
+   "desc": "a bush without berries"
+  },
+  "A": {
+   "name": "apple tree",
+   "solid": true,
+   "desc": "a tree with apples"
+  },
+  "e": {
+   "name": "bare apple tree",
+   "solid": true,
+   "desc": "an apple tree without apples"
+  },
+  "R": {
+   "name": "rock",
+   "solid": true,
+   "desc": "a large grey rock"
+  },
+  "o": {
+   "name": "stones",
+   "desc": "loose stones on the ground"
+  },
+  "c": {
+   "name": "clay",
+   "desc": "soft grey clay"
+  },
+  "f": {
+   "name": "flowers",
+   "desc": "small yellow flowers"
+  },
+  "#": {
+   "name": "plank wall",
+   "solid": true,
+   "desc": "a wall of planks"
+  },
+  "|": {
+   "name": "stone wall",
+   "solid": true,
+   "desc": "an old wall of fitted stones"
+  },
+  "D": {
+   "name": "closed door",
+   "solid": true,
+   "desc": "a closed wooden door"
+  },
+  "d": {
+   "name": "open door",
+   "desc": "an open wooden door"
+  },
+  "G": {
+   "name": "heavy gate",
+   "solid": true,
+   "desc": "a heavy stone gate, closed"
+  },
+  "g": {
+   "name": "open gate",
+   "desc": "a heavy stone gate, standing open"
+  },
+  "_": {
+   "name": "floor",
+   "desc": "a wooden floor",
+   "roof": true
+  },
+  "x": {
+   "name": "sown soil",
+   "desc": "dirt with seeds sown in it"
+  },
+  "y": {
+   "name": "sprouts",
+   "desc": "green sprouts in the dirt"
+  },
+  "W": {
+   "name": "wheat",
+   "desc": "ripe golden wheat"
+  },
+  "F": {
+   "name": "fire",
+   "solid": true,
+   "desc": "a crackling fire",
+   "warm": 0.02,
+   "light": 2
+  },
+  "a": {
+   "name": "ashes",
+   "desc": "grey ashes, still a little warm"
+  },
+  "Q": {
+   "name": "flickering stone",
+   "solid": true,
+   "desc": "a stone with glyphs that flicker"
+  },
+  "m": {
+   "name": "mist",
+   "solid": true,
+   "desc": "a wall of white mist; nothing can be seen beyond it"
+  },
+  "M": {
+   "name": "mushrooms",
+   "desc": "a cluster of brown mushrooms"
+  },
+  "r": {
+   "name": "reeds",
+   "desc": "tall green reeds"
+  },
+  "V": {
+   "name": "veined rock",
+   "solid": true,
+   "desc": "a rock veined with green"
+  },
+  "w": {
+   "name": "water",
+   "solid": true,
+   "desc": "clear fresh water"
+  },
+  "j": {
+   "name": "spring",
+   "solid": true,
+   "desc": "a spring: clear water bubbling up between stones"
+  },
+  "K": {
+   "name": "cave",
+   "roof": true,
+   "desc": "a dry rock floor under the low roof of a cave"
+  },
+  "L": {
+   "name": "lean-to",
+   "roof": true,
+   "desc": "a lean-to of sticks: a low roof to shelter under",
+   "fragile": {
+    "p": 0.02,
+    "becomes": "grass",
+    "leaves": [
+     "stick",
+     "stick"
+    ]
+   }
+  },
+  "H": {
+   "name": "hut",
+   "roof": true,
+   "desc": "a small hut of planks, with a roof and room for one or two"
+  },
+  "C": {
+   "name": "cairn",
+   "solid": true,
+   "desc": "a cairn: stones piled up by someone's hands"
+  },
+  "X": {
+   "name": "store",
+   "solid": true,
+   "store": 12,
+   "desc": "a store of stones and planks with a lid, to keep things in"
+  },
+  "J": {
+   "name": "dry spring",
+   "solid": true,
+   "desc": "a hollow of damp stones where a spring ran"
+  },
+  "Y": {
+   "name": "barrel",
+   "solid": true,
+   "store": 8,
+   "desc": "a barrel standing upright, its lid loose"
+  },
+  "Z": {
+   "name": "tent",
+   "roof": true,
+   "desc": "a tent of sailcloth over sticks",
+   "fragile": {
+    "p": 0.01,
+    "becomes": "grass",
+    "leaves": [
+     "sailcloth",
+     "stick"
+    ]
+   }
+  },
+  "P": {
+   "name": "mussels on rocks",
+   "solid": true,
+   "desc": "mussels clinging to wet rocks"
+  },
+  "p": {
+   "name": "bare rocks",
+   "solid": true,
+   "desc": "wet rocks, the mussels picked off"
+  }
+ },
+ "generate": {
+  "island": {
+   "radius": 25,
+   "coast_wobble": [
+    0.03,
+    0.08
+   ],
+   "beach": 1.6,
+   "beach_stones": 0.03
+  },
+  "biomes": {
+   "centres": 12,
+   "spacing": 7,
+   "centre": "meadow",
+   "types": {
+    "meadow": 4,
+    "forest": 4,
+    "hills": 3,
+    "marsh": 1
+   },
+   "fill": {
+    "meadow": {
+     ",": 0.08,
+     "f": 0.05,
+     "B": 0.03,
+     "T": 0.02,
+     "o": 0.01
+    },
+    "forest": {
+     "T": 0.36,
+     "B": 0.06,
+     "M": 0.03,
+     "o": 0.01,
+     ",": 0.02,
+     "A": 0.006
+    },
+    "hills": {
+     "R": 0.28,
+     "V": 0.04,
+     "o": 0.08,
+     ",": 0.02
+    },
+    "marsh": {
+     "w": 0.08,
+     "r": 0.2,
+     "c": 0.06,
+     ",": 0.05
+    }
+   }
+  },
+  "pond": {
+   "radius": [
+    2,
+    3
+   ],
+   "tile": "w",
+   "rim": [
+    "s",
+    "c",
+    "r",
+    "."
+   ],
+   "min_distance": 6
+  },
+  "springs": {
+   "count": 3,
+   "biomes": [
+    "hills",
+    "forest",
+    "meadow"
+   ],
+   "apart": 12,
+   "tile": "j",
+   "coast": {
+    "count": 3,
+    "inland": [
+     1,
+     3
+    ],
+    "between_spawn": true
+   }
+  },
+  "spawn": {
+   "spacing": 12,
+   "open": 2,
+   "water_within": 12,
+   "neighbour_x": 2
+  },
+  "shore_food": {
+   "tile": "P",
+   "near_spawn": 8,
+   "each": 2,
+   "within": 3,
+   "more": 8
+  },
+  "caves": {
+   "count": 3,
+   "apart": 10,
+   "tile": "K"
+  },
+  "orchard": {
+   "size": 7,
+   "apple_trees": 4,
+   "min_distance": 8,
+   "max_distance": 18
+  },
+  "flickering_stones": 1,
+  "finds": [
+   {
+    "item": "shell",
+    "count": 14,
+    "where": "shore"
+   },
+   {
+    "item": "smooth black stone",
+    "count": 4,
+    "biomes": [
+     "hills"
+    ]
+   },
+   {
+    "item": "carved figure",
+    "count": 2,
+    "where": "mist"
+   }
+  ]
+ },
+ "take": [
+  {
+   "target": "mussels on rocks",
+   "gives": [
+    "mussels"
+   ],
+   "becomes": "bare rocks",
+   "text": "I prised mussels off the rocks.",
+   "seen": "gathered mussels"
+  },
+  {
+   "target": "bare rocks",
+   "text": "There are no mussels left on these rocks."
+  },
+  {
+   "target": "sea",
+   "text": "I cupped the sea water; it is salt and runs through my fingers."
+  },
+  {
+   "target": "spring",
+   "text": "I cupped the spring water; it is cold and runs through my fingers."
+  },
+  {
+   "target": "rock",
+   "held": "stone axe",
+   "gives": [
+    "stone",
+    "stone"
+   ],
+   "becomes": "stones",
+   "text": "I struck the rock with the axe until it split: stones.",
+   "seen": "broke a rock"
+  },
+  {
+   "target": "veined rock",
+   "held": "stone axe",
+   "gives": [
+    "stone",
+    "copper ore"
+   ],
+   "becomes": "stones",
+   "text": "I struck the veined rock with the axe; it split, and a greenish lump came loose: copper ore.",
+   "seen": "broke a veined rock"
+  },
+  {
+   "target": "veined rock",
+   "text": "The rock is veined with green; nothing comes loose by hand."
+  },
+  {
+   "target": "tree",
+   "held": "copper knife",
+   "gives": [
+    "stick",
+    "stick"
+   ],
+   "text": "I cut two straight sticks from the tree with the copper knife.",
+   "seen": "cut sticks"
+  },
+  {
+   "target": "tree",
+   "held": "stone axe",
+   "gives": [
+    "log",
+    "log"
+   ],
+   "becomes": "stump",
+   "text": "I cut the tree down with the axe; two logs.",
+   "seen": "cut down a tree"
+  },
+  {
+   "target": "tree",
+   "held": "sharp stone",
+   "gives": [
+    "log"
+   ],
+   "becomes": "stump",
+   "text": "I hacked at the tree with the sharp stone until it fell; a log.",
+   "seen": "felled a tree"
+  },
+  {
+   "target": "tree",
+   "gives": [
+    "stick"
+   ],
+   "text": "I broke a stick off the tree.",
+   "seen": "broke a stick off a tree"
+  },
+  {
+   "target": "sapling",
+   "text": "The sapling bends but I leave it; it is too young to give anything."
+  },
+  {
+   "target": "stump",
+   "text": "The stump is rooted fast."
+  },
+  {
+   "target": "berry bush",
+   "gives": [
+    "berries"
+   ],
+   "becomes": "bare bush",
+   "text": "I picked berries from the bush.",
+   "seen": "picked berries"
+  },
+  {
+   "target": "bare bush",
+   "text": "There are no berries left on this bush."
+  },
+  {
+   "target": "apple tree",
+   "gives": [
+    "apple"
+   ],
+   "becomes": "bare apple tree",
+   "text": "I picked an apple.",
+   "seen": "picked an apple"
+  },
+  {
+   "target": "bare apple tree",
+   "text": "No apples are left on this tree."
+  },
+  {
+   "target": "tall grass",
+   "gives": [
+    "seeds"
+   ],
+   "becomes": "grass",
+   "text": "I stripped the seed heads from the tall grass: seeds.",
+   "seen": "gathered seeds"
+  },
+  {
+   "target": "stones",
+   "gives": [
+    "stone"
+   ],
+   "text": "I picked up a stone.",
+   "seen": "picked up a stone"
+  },
+  {
+   "target": "rock",
+   "text": "The rock is solid and cold; nothing comes loose."
+  },
+  {
+   "target": "sand",
+   "gives": [
+    "sand"
+   ],
+   "text": "I scooped up a handful of sand."
+  },
+  {
+   "target": "clay",
+   "gives": [
+    "clay"
+   ],
+   "text": "I dug out a lump of clay.",
+   "seen": "dug clay"
+  },
+  {
+   "target": "flowers",
+   "gives": [
+    "flower"
+   ],
+   "becomes": "grass",
+   "text": "I picked a flower."
+  },
+  {
+   "target": "wheat",
+   "gives": [
+    "wheat",
+    "seeds"
+   ],
+   "becomes": "dirt",
+   "text": "I harvested the wheat: wheat, and seeds.",
+   "seen": "harvested wheat"
+  },
+  {
+   "target": "water",
+   "text": "I cupped the water; it ran through my fingers."
+  },
+  {
+   "target": "ashes",
+   "text": "The ashes crumble in my hand."
+  },
+  {
+   "target": "flickering stone",
+   "text": "The glyphs shift under my hand: {glyphs}.",
+   "noise": true
+  },
+  {
+   "target": "mushrooms",
+   "gives": [
+    "mushroom"
+   ],
+   "becomes": "grass",
+   "text": "I picked a mushroom.",
+   "seen": "picked a mushroom"
+  },
+  {
+   "target": "reeds",
+   "gives": [
+    "reed"
+   ],
+   "text": "I pulled a reed.",
+   "seen": "pulled a reed"
+  },
+  {
+   "target": "sheep",
+   "held": "sharp stone",
+   "gives": [
+    "wool"
+   ],
+   "creature_becomes": "shorn sheep",
+   "text": "I cut the wool from the sheep with the sharp stone: wool. It bleats and trots off.",
+   "seen": "sheared a sheep",
+   "flees": true
+  },
+  {
+   "target": "sheep",
+   "held": "copper knife",
+   "gives": [
+    "wool",
+    "wool"
+   ],
+   "creature_becomes": "shorn sheep",
+   "text": "I sheared the sheep with the copper knife: two bundles of wool.",
+   "seen": "sheared a sheep"
+  },
+  {
+   "target": "sheep",
+   "text": "I grabbed at the sheep's wool; it bleats and pulls away.",
+   "flees": true
+  },
+  {
+   "target": "shorn sheep",
+   "text": "The sheep has no wool left to take.",
+   "flees": true
+  },
+  {
+   "target": "cow",
+   "text": "The cow chews and ignores me."
+  },
+  {
+   "target": "chicken",
+   "text": "The chicken flaps and scurries away.",
+   "flees": true
+  },
+  {
+   "target": "rabbit",
+   "text": "The rabbit bolts.",
+   "flees": true
+  },
+  {
+   "target": "deer",
+   "text": "The deer bounds away.",
+   "flees": true
+  },
+  {
+   "target": "frog",
+   "text": "The frog slips through my fingers and hops away.",
+   "flees": true
+  }
+ ],
+ "use": [
+  {
+   "held": "fishing line",
+   "target": "sea",
+   "chance": 0.3,
+   "gives": [
+    "fish"
+   ],
+   "text": "I cast the line into the sea; something tugged, and I pulled out a fish!",
+   "text_fail": "I cast the line into the sea and waited. Nothing bit.",
+   "seen": "caught a fish",
+   "seen_fail": "fished"
+  },
+  {
+   "held": "bowl",
+   "target": "sea",
+   "consume": true,
+   "gives": [
+    "bowl of sea water"
+   ],
+   "text": "I filled the bowl with sea water.",
+   "seen": "filled a bowl"
+  },
+  {
+   "held": "bowl",
+   "target": "spring",
+   "consume": true,
+   "gives": [
+    "bowl of water"
+   ],
+   "text": "I filled the bowl at the spring.",
+   "seen": "filled a bowl"
+  },
+  {
+   "held": "bowl",
+   "target": "cow",
+   "consume": true,
+   "gives": [
+    "bowl of milk"
+   ],
+   "text": "I milked the cow into the bowl: a bowl of milk.",
+   "seen": "milked a cow"
+  },
+  {
+   "target": "cow",
+   "text": "I patted the cow. It lows softly."
+  },
+  {
+   "target": "sheep",
+   "text": "I patted the sheep; its wool is thick and warm."
+  },
+  {
+   "held": "stick",
+   "target": "item:wool",
+   "target_becomes": "string",
+   "text": "I twisted the wool around the stick into a length of string.",
+   "seen": "spun string"
+  },
+  {
+   "held": "string",
+   "target": "item:stick",
+   "consume": true,
+   "target_becomes": "fishing line",
+   "text": "I tied the string to the stick: a fishing line.",
+   "seen": "made a fishing line"
+  },
+  {
+   "held": "fishing line",
+   "target": "water",
+   "chance": 0.3,
+   "gives": [
+    "fish"
+   ],
+   "text": "I dipped the line in the water; something tugged, and I pulled out a fish!",
+   "text_fail": "I dipped the line in the water and waited. Nothing bit.",
+   "seen": "caught a fish",
+   "seen_fail": "fished"
+  },
+  {
+   "held": "fish",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "roasted fish"
+   ],
+   "text": "I roasted the fish over the fire.",
+   "seen": "roasted a fish"
+  },
+  {
+   "held": "egg",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "cooked egg"
+   ],
+   "text": "I set the egg in the embers until it was cooked.",
+   "seen": "cooked an egg"
+  },
+  {
+   "held": "mushroom",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "roasted mushroom"
+   ],
+   "text": "I roasted the mushroom; it smells of earth.",
+   "seen": "roasted a mushroom"
+  },
+  {
+   "held": "copper ore",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "copper"
+   ],
+   "text": "I held the ore in the fire until bright metal ran out of it and cooled: copper.",
+   "seen": "smelted copper"
+  },
+  {
+   "held": "copper",
+   "target": "item:stick",
+   "consume": true,
+   "target_becomes": "copper knife",
+   "text": "I hammered the copper flat and bound it to the stick: a copper knife.",
+   "seen": "made a knife"
+  },
+  {
+   "held": "plank",
+   "target": "item:plank",
+   "consume": true,
+   "target_becomes": "door",
+   "text": "I fitted the two planks together: a door.",
+   "seen": "made a door"
+  },
+  {
+   "held": "door",
+   "target": "@ground",
+   "consume": true,
+   "becomes": "closed door",
+   "text": "I set the door upright in the ground and fixed it.",
+   "seen": "set up a door"
+  },
+  {
+   "held": "sharp stone",
+   "target": "item:reed",
+   "target_becomes": "reed pipe",
+   "text": "I cut holes in the reed with the sharp stone: a reed pipe.",
+   "seen": "made a reed pipe"
+  },
+  {
+   "held": "reed pipe",
+   "target": "@ground",
+   "text": "I blew into the reed pipe: a clear, thin note carried over the land.",
+   "seen": "played a note on a reed pipe",
+   "heard": "From the {dir}, a thin clear note, like a pipe.",
+   "heard_far": "Far away, a thin note, like a pipe."
+  },
+  {
+   "held": "wool",
+   "target": "item:planks",
+   "consume": true,
+   "target_becomes": "bed",
+   "text": "I spread the wool over the planks: a soft bed.",
+   "seen": "made a bed"
+  },
+  {
+   "target": "closed door",
+   "becomes": "open door",
+   "text": "I pushed the door and it swung open.",
+   "seen": "opened the door"
+  },
+  {
+   "target": "open door",
+   "becomes": "closed door",
+   "text": "I pulled the door shut.",
+   "seen": "closed the door"
+  },
+  {
+   "target": "heavy gate",
+   "together": 2,
+   "becomes": "open gate",
+   "reopen_after": 600,
+   "text_alone": "I pushed the heavy gate. It shifted a little, then settled back: it is too heavy for one.",
+   "text": "We pushed the heavy gate at the same moment, and it swung open.",
+   "seen": "pushed the heavy gate"
+  },
+  {
+   "target": "flickering stone",
+   "text": "The glyphs flicker and change: {glyphs}.",
+   "noise": true
+  },
+  {
+   "held": "stone",
+   "target": "item:stone",
+   "target_becomes": "sharp stone",
+   "text": "I struck the stone on the stone lying there: a sharp flake split off. It lies there now, sharp-edged.",
+   "seen": "knapped a stone"
+  },
+  {
+   "held": "stick",
+   "target": "item:sharp stone",
+   "consume": true,
+   "target_becomes": null,
+   "gives": [
+    "stone axe"
+   ],
+   "text": "I bound the sharp stone to the stick: a stone axe.",
+   "seen": "made an axe"
+  },
+  {
+   "held": "sharp stone",
+   "target": "item:log",
+   "target_becomes": "planks",
+   "text": "I split the log with the sharp stone into planks.",
+   "seen": "split a log"
+  },
+  {
+   "held": "stone axe",
+   "target": "item:log",
+   "target_becomes": "planks",
+   "text": "I split the log with the axe into planks.",
+   "seen": "split a log"
+  },
+  {
+   "held": "plank",
+   "target": "@ground",
+   "consume": true,
+   "becomes": "plank wall",
+   "text": "I set the plank upright and fixed it: a piece of wall.",
+   "seen": "built a piece of wall"
+  },
+  {
+   "held": "sharp stone",
+   "target": "grass",
+   "becomes": "dirt",
+   "text": "I scraped the grass away: bare dirt.",
+   "seen": "scraped the ground"
+  },
+  {
+   "held": "stone axe",
+   "target": "grass",
+   "becomes": "dirt",
+   "text": "I chopped the grass away: bare dirt.",
+   "seen": "cleared the ground"
+  },
+  {
+   "held": "seeds",
+   "target": "dirt",
+   "consume": true,
+   "becomes": "sown soil",
+   "text": "I pressed the seeds into the dirt.",
+   "seen": "sowed seeds"
+  },
+  {
+   "held": "stick",
+   "target": "item:log",
+   "in_a_row": 3,
+   "target_becomes": null,
+   "becomes": "fire",
+   "text_before": "I rubbed the stick against the log. It grew warm.",
+   "text": "I rubbed the stick against the log again and again: smoke, then a flame. A fire!",
+   "seen": "made a fire"
+  },
+  {
+   "held": "log",
+   "target": "fire",
+   "consume": true,
+   "feed": true,
+   "text": "I put the log on the fire; it blazes up.",
+   "seen": "fed the fire"
+  },
+  {
+   "held": "stick",
+   "target": "fire",
+   "consume": true,
+   "feed": true,
+   "text": "I put the stick on the fire; it flares."
+  },
+  {
+   "held": "wheat",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "bread"
+   ],
+   "text": "I held the wheat over the fire until it browned: bread.",
+   "seen": "baked bread"
+  },
+  {
+   "held": "berries",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "roasted berries"
+   ],
+   "text": "I roasted the berries over the fire.",
+   "seen": "roasted berries"
+  },
+  {
+   "held": "apple",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "baked apple"
+   ],
+   "text": "I baked the apple in the fire; it smells sweet.",
+   "seen": "baked an apple"
+  },
+  {
+   "held": "sharp stone",
+   "target": "item:clay",
+   "target_becomes": "bowl of wet clay",
+   "text": "I shaped the clay with the sharp stone into a bowl. It is soft.",
+   "seen": "shaped clay"
+  },
+  {
+   "held": "bowl of wet clay",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "bowl"
+   ],
+   "text": "I set the clay bowl in the fire until it hardened: a bowl.",
+   "seen": "fired a bowl"
+  },
+  {
+   "held": "bowl",
+   "target": "water",
+   "consume": true,
+   "gives": [
+    "bowl of water"
+   ],
+   "text": "I filled the bowl with water.",
+   "seen": "filled a bowl"
+  },
+  {
+   "held": "bowl of water",
+   "target": "sown soil",
+   "consume": true,
+   "gives": [
+    "bowl"
+   ],
+   "water": true,
+   "text": "I watered the sown soil.",
+   "seen": "watered the soil"
+  },
+  {
+   "held": "bowl of water",
+   "target": "sprouts",
+   "consume": true,
+   "gives": [
+    "bowl"
+   ],
+   "water": true,
+   "text": "I watered the sprouts.",
+   "seen": "watered the sprouts"
+  },
+  {
+   "held": "bowl of water",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "bowl"
+   ],
+   "becomes": "ashes",
+   "text": "I poured the water on the fire; it hissed out.",
+   "seen": "put out the fire"
+  },
+  {
+   "held": "sand",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "glass"
+   ],
+   "text": "I held the sand in the fire; it melted and cooled into a lump of clear glass.",
+   "seen": "made glass"
+  },
+  {
+   "held": "sharp stone",
+   "target": "item:shell",
+   "target_becomes": "shell bead",
+   "text": "I bored a hole through the shell with the sharp stone: a shell bead.",
+   "seen": "worked a shell"
+  },
+  {
+   "held": "string",
+   "target": "item:shell bead",
+   "consume": true,
+   "target_becomes": "string of shell beads",
+   "text": "I threaded the bead on the string: a string of shell beads.",
+   "seen": "threaded a bead"
+  },
+  {
+   "held": "glass bottle",
+   "target": "water",
+   "consume": true,
+   "gives": [
+    "bottle of water"
+   ],
+   "text": "I filled the glass bottle with water.",
+   "seen": "filled a bottle"
+  },
+  {
+   "held": "glass bottle",
+   "target": "spring",
+   "consume": true,
+   "gives": [
+    "bottle of water"
+   ],
+   "text": "I filled the glass bottle at the spring.",
+   "seen": "filled a bottle"
+  },
+  {
+   "held": "barrel",
+   "target": "@ground",
+   "consume": true,
+   "becomes": "barrel",
+   "text": "I stood the barrel upright on the ground.",
+   "seen": "set down a barrel"
+  },
+  {
+   "held": "raw meat",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "roasted meat"
+   ],
+   "text": "I roasted the meat over the fire; it smells rich.",
+   "seen": "roasted meat"
+  },
+  {
+   "held": "mussels",
+   "target": "fire",
+   "consume": true,
+   "gives": [
+    "roasted mussels"
+   ],
+   "text": "I roasted the mussels over the fire; their shells opened.",
+   "seen": "roasted mussels"
+  }
+ ],
+ "grow": [
+  {
+   "from": "sown soil",
+   "to": "sprouts",
+   "after": 300,
+   "needs_water_within": 2,
+   "watered_after": 120
+  },
+  {
+   "from": "sprouts",
+   "to": "wheat",
+   "after": 300,
+   "needs_water_within": 2,
+   "watered_after": 120
+  },
+  {
+   "from": "bare bush",
+   "to": "berry bush",
+   "after": 300
+  },
+  {
+   "from": "bare apple tree",
+   "to": "apple tree",
+   "after": 700
+  },
+  {
+   "from": "stump",
+   "to": "sapling",
+   "after": 800
+  },
+  {
+   "from": "sapling",
+   "to": "tree",
+   "after": 1200
+  },
+  {
+   "from": "fire",
+   "to": "ashes",
+   "after": 400
+  },
+  {
+   "from": "ashes",
+   "to": "grass",
+   "after": 800
+  },
+  {
+   "from": "open gate",
+   "to": "heavy gate",
+   "after": 600
+  },
+  {
+   "from": "mushrooms",
+   "to": "grass",
+   "after": 99999
+  },
+  {
+   "from": "bare rocks",
+   "to": "mussels on rocks",
+   "after": 300
+  }
+ ],
+ "food": {
+  "berries": 0.12,
+  "roasted berries": 0.2,
+  "apple": 0.2,
+  "baked apple": 0.3,
+  "bread": 0.45,
+  "wheat": 0.04,
+  "seeds": 0.02,
+  "mushroom": 0.08,
+  "roasted mushroom": 0.15,
+  "egg": 0.1,
+  "cooked egg": 0.25,
+  "fish": 0.1,
+  "roasted fish": 0.35,
+  "bowl of milk": 0.25,
+  "raw meat": 0.1,
+  "roasted meat": 0.45,
+  "mussels": 0.2,
+  "roasted mussels": 0.35
+ },
+ "warmth": {
+  "_doc": "per tick, awake: chill outside at night, warmth under a roof or by a fire, a little in the day",
+  "night_outside_chill": 0.003,
+  "roof_warmth": 0.01,
+  "day_warmth": 0.002
+ },
+ "pickup": {
+  "planks": [
+   "plank",
+   "plank"
+  ]
+ },
+ "carry_max": 10,
+ "sight": {
+  "day": 5,
+  "night": 1
+ },
+ "hearing": {
+  "words_with_mark": 3,
+  "words": 8
+ },
+ "fog": {
+  "banks": 3,
+  "radius": [
+   4,
+   7
+  ],
+  "near": 2,
+  "lift": 7,
+  "_doc": "mist banks over the interior (count, radius); a bank lifts within `lift` of a mind that comes within `near` of it, for good"
+ },
+ "weather": {
+  "rain_every": [
+   240,
+   720
+  ],
+  "rain_lasts": [
+   30,
+   90
+  ],
+  "quench": 0.02,
+  "chill": 0.001,
+  "fill_bowls": 0.02
+ },
+ "creature_ground": [
+  "grass",
+  "tall grass",
+  "flowers",
+  "dirt",
+  "sand",
+  "stones",
+  "mushrooms"
+ ],
+ "creatures": {
+  "sheep": {
+   "desc": "a woolly white sheep",
+   "biomes": [
+    "meadow"
+   ],
+   "count": 5,
+   "wander": 0.12,
+   "tough": 0.6,
+   "dodge": 0.0,
+   "leaves": [
+    "raw meat",
+    "wool"
+   ],
+   "breed": {
+    "every": 500,
+    "max": 5
+   }
+  },
+  "shorn sheep": {
+   "desc": "a sheep with its wool shorn close",
+   "wander": 0.12,
+   "tough": 0.6,
+   "dodge": 0.0,
+   "leaves": [
+    "raw meat"
+   ],
+   "family": "sheep"
+  },
+  "cow": {
+   "desc": "a brown cow, chewing slowly",
+   "biomes": [
+    "meadow"
+   ],
+   "count": 3,
+   "wander": 0.05,
+   "tough": 1.2,
+   "dodge": 0.0,
+   "leaves": [
+    "raw meat",
+    "raw meat"
+   ],
+   "breed": {
+    "every": 900,
+    "max": 3
+   }
+  },
+  "chicken": {
+   "desc": "a speckled chicken, pecking",
+   "biomes": [
+    "meadow",
+    "forest"
+   ],
+   "count": 5,
+   "wander": 0.3,
+   "lays": {
+    "item": "egg",
+    "every": 500
+   },
+   "tough": 0.25,
+   "dodge": 0.3,
+   "leaves": [
+    "raw meat"
+   ],
+   "breed": {
+    "every": 400,
+    "max": 5
+   }
+  },
+  "rabbit": {
+   "desc": "a grey rabbit, ears up",
+   "biomes": [
+    "meadow"
+   ],
+   "count": 6,
+   "wander": 0.25,
+   "flee": 2,
+   "tough": 0.25,
+   "dodge": 0.6,
+   "leaves": [
+    "raw meat"
+   ],
+   "breed": {
+    "every": 400,
+    "max": 6
+   }
+  },
+  "deer": {
+   "desc": "a deer, watching me",
+   "biomes": [
+    "forest"
+   ],
+   "count": 3,
+   "wander": 0.1,
+   "flee": 4,
+   "tough": 0.7,
+   "dodge": 0.5,
+   "leaves": [
+    "raw meat",
+    "raw meat"
+   ],
+   "breed": {
+    "every": 800,
+    "max": 3
+   }
+  },
+  "frog": {
+   "desc": "a green frog",
+   "biomes": [
+    "marsh"
+   ],
+   "count": 4,
+   "wander": 0.2,
+   "flee": 1,
+   "ground": [
+    "grass",
+    "tall grass",
+    "sand",
+    "clay",
+    "reeds"
+   ],
+   "tough": 0.1,
+   "dodge": 0.4,
+   "leaves": [],
+   "breed": {
+    "every": 600,
+    "max": 4
+   }
+  },
+  "boar": {
+   "desc": "a bristly boar, snuffling at the ground",
+   "count": 0,
+   "wander": 0.2,
+   "tough": 1.5,
+   "dodge": 0.1,
+   "leaves": [
+    "raw meat",
+    "raw meat",
+    "raw meat"
+   ],
+   "charges": {
+    "p": 0.03,
+    "p_angry": 0.5,
+    "angry_for": 20,
+    "hurt": 0.2
+   },
+   "_doc": "comes ashore now and then (event `arrival`); charges one who stands beside it, more when struck"
+  }
+ },
+ "creature_grow": [
+  {
+   "from": "shorn sheep",
+   "to": "sheep",
+   "after": 900
+  }
+ ],
+ "eat_leaves": {
+  "bowl of milk": "bowl"
+ },
+ "land_word": "island",
+ "asleep_feels": [
+  "dark",
+  "chill"
+ ],
+ "seasons": {
+  "days": 8,
+  "order": [
+   "spring",
+   "summer",
+   "autumn",
+   "winter"
+  ],
+  "grow_affects": [
+   "sown soil",
+   "sprouts",
+   "bare bush",
+   "bare apple tree",
+   "stump",
+   "sapling",
+   "bare rocks"
+  ],
+  "_doc": "per season: night_from (a night of 24-40% of the day), grow (x a plant's regrowth time), chill and warmth (x the night's chill outside, x the day's warmth), rain_every (x the dry spell), air (the phrase with the time of day)",
+  "each": {
+   "spring": {
+    "night_from": 0.7,
+    "grow": 0.5,
+    "chill": 0.7,
+    "warmth": 1.0,
+    "rain_every": 0.8,
+    "air": "The air is fresh and green things are coming up."
+   },
+   "summer": {
+    "night_from": 0.76,
+    "grow": 0.8,
+    "chill": 0.3,
+    "warmth": 1.5,
+    "rain_every": 1.5,
+    "air": "The air is warm."
+   },
+   "autumn": {
+    "night_from": 0.68,
+    "grow": 1.6,
+    "chill": 1.0,
+    "warmth": 0.8,
+    "rain_every": 0.7,
+    "air": "The air is cool and the leaves are turning."
+   },
+   "winter": {
+    "night_from": 0.6,
+    "grow": 4.0,
+    "chill": 2.0,
+    "warmth": 0.3,
+    "rain_every": 0.8,
+    "air": "The air is cold and raw."
+   }
+  }
+ },
+ "verbs": {
+  "drink": "drink from what is in front of me, or what I hold",
+  "give": "give what I hold to the one in front of me",
+  "strike": "strike what is in front of me (with what I hold)",
+  "build": "build something in front of me from what I carry"
+ },
+ "bodies_block": false,
+ "drink": [
+  {
+   "held": "bottle of water",
+   "amount": 0.3,
+   "leaves": "glass bottle",
+   "text": "I drank the water from the glass bottle.",
+   "seen": "drank from a bottle"
+  },
+  {
+   "held": "bowl of water",
+   "amount": 0.35,
+   "leaves": "bowl",
+   "text": "I drank the water from the bowl.",
+   "seen": "drank from a bowl"
+  },
+  {
+   "held": "bowl of sea water",
+   "amount": -0.1,
+   "leaves": "bowl",
+   "text": "I drank the sea water from the bowl. It is salt; my mouth is drier than before.",
+   "seen": "drank from a bowl"
+  },
+  {
+   "target": "water",
+   "amount": 0.25,
+   "text": "I drank the clear water from my cupped hands.",
+   "seen": "drank water"
+  },
+  {
+   "target": "spring",
+   "amount": 0.3,
+   "text": "I drank from the spring; the water is cold and clean.",
+   "seen": "drank from the spring"
+  },
+  {
+   "target": "sea",
+   "amount": -0.1,
+   "text": "I drank the sea water. It is salt; my mouth is drier than before.",
+   "seen": "drank sea water"
+  }
+ ],
+ "strike": {
+  "base": 0.25,
+  "weakens": 0.8,
+  "self_hurt": 0.03,
+  "weapons": {
+   "stick": 0.1,
+   "stone": 0.1,
+   "log": 0.15,
+   "sharp stone": 0.15,
+   "copper knife": 0.2,
+   "stone axe": 0.25
+  },
+  "_doc": "a blow's strength = (base + the weapon's) x (1 - weak/2); a struck mind's pain rises by it (the `hurt` event, which wakes a sleeper) and its body's weakness by x`weakens`; striking a solid thing hurts the hand"
+ },
+ "body": {
+  "weak_heal": 0.004,
+  "weak_heal_asleep": 0.008,
+  "stumble": 0.5,
+  "weak_carry": 5,
+  "weak_felt": [
+   [
+    0.3,
+    "My body is weak and bruised."
+   ],
+   [
+    0.7,
+    "My body is badly hurt; every move is hard."
+   ]
+  ],
+  "_doc": "weakness heals a tick (awake / asleep); a move fails with p = weak x stumble; carry_max - weak x weak_carry; the phrase is part of what the body senses"
+ },
+ "build": [
+  {
+   "needs": {
+    "sailcloth": 1,
+    "stick": 2
+   },
+   "becomes": "tent",
+   "text": "I stretched the sailcloth over the sticks: a tent.",
+   "seen": "pitched a tent"
+  },
+  {
+   "needs": {
+    "stone": 2,
+    "plank": 2
+   },
+   "becomes": "store",
+   "text": "I set the stones and fitted the planks over them: a store with a lid, to keep things in.",
+   "seen": "built a store"
+  },
+  {
+   "needs": {
+    "plank": 6
+   },
+   "becomes": "hut",
+   "text": "I stood the planks up and laid the last ones across: a small hut with a roof.",
+   "seen": "built a hut"
+  },
+  {
+   "needs": {
+    "stick": 4
+   },
+   "becomes": "lean-to",
+   "text": "I leaned the sticks together and wove them tight: a lean-to, a low roof to shelter under.",
+   "seen": "built a lean-to"
+  },
+  {
+   "needs": {
+    "stone": 3
+   },
+   "becomes": "cairn",
+   "text": "I piled the stones one on another: a cairn.",
+   "seen": "piled up a cairn"
+  }
+ ],
+ "events": {
+  "_doc": "per_day = the chance a day that one starts (one of a kind at a time); lasts in ticks",
+  "storm": {
+   "per_day": 0.12,
+   "lasts": [
+    30,
+    80
+   ],
+   "chill": 0.004,
+   "felt": "A storm is blowing: the wind howls and hard rain lashes down."
+  },
+  "wreck": {
+   "per_day": 0.08,
+   "count": [
+    2,
+    4
+   ],
+   "things": [
+    "planks",
+    "bowl",
+    "copper knife",
+    "log",
+    "rope",
+    "barrel",
+    "sailcloth",
+    "glass bottle"
+   ]
+  },
+  "drought": {
+   "per_day": 0.05,
+   "lasts": [
+    360,
+    900
+   ],
+   "tile": "spring",
+   "becomes": "dry spring"
+  },
+  "arrival": {
+   "per_day": 0.03,
+   "kinds": [
+    "boar"
+   ]
+  }
+ },
+ "mass_nouns": [
+  "raw meat",
+  "roasted meat",
+  "berries",
+  "roasted berries",
+  "wool",
+  "sand",
+  "clay",
+  "seeds",
+  "wheat",
+  "string",
+  "copper",
+  "copper ore",
+  "glass",
+  "bread",
+  "milk",
+  "mussels",
+  "roasted mussels"
+ ]
+}

@@ -1,0 +1,42 @@
+{
+  "_doc": "The island's genome overlay (P3): minds born for the island get the body's needs the island can meet or inflict: thirst (fresh water exists there), pain (blows). The body's pace (owner, 2026-09-30, after isl3-isl5: 'il faut faire en sorte que l'esprit ait eu le temps d'essayer et de consolider plusieurs fois tout en ressentant une faim acceptable'): hunger and thirst felt within the first day, but very hungry only after ~3 days without food and very thirsty after ~2 without water, as a human fasts for days (the template's pace, very hungry ~70 awake ticks after a meal, was faster than one sleep's learning); a meal relieves its amount (a handful of mussels ~1.3 days, berries ~0.8), a drink ~1.5 days. Ghrelin's and cortisol's push on hunger (rises) scaled as the drift (/6). Newborns wake a little hungry and thirsty (init 0.45). The sleep pressure's pace (3k): a newborn of the island inherits entrain.init 0.6 (the island's waking day is ~126 ticks: at pace 1 the pressure was full in ~100 and every isl7 mind collapsed by the late day), then refines it against the days it lives.",
+  "drives.json": {
+    "food": {
+      "drift": 0.0006,
+      "drift_asleep": 0.0003,
+      "init": 0.45,
+      "satisfied_by": {
+        "ate": {
+          "gain": 1.0
+        }
+      },
+      "rises": {
+        "ghrelin": {
+          "gain": 0.0005
+        },
+        "cortisol": {
+          "gain": 8e-05
+        }
+      }
+    },
+    "thirst": {
+      "enabled": true,
+      "drift": 0.0012,
+      "drift_asleep": 0.0006,
+      "init": 0.45,
+      "satisfied_by": {
+        "drank": {
+          "gain": 1.0
+        }
+      }
+    },
+    "pain": {
+      "enabled": true
+    }
+  },
+  "brain.json": {
+    "entrain": {
+      "init": 0.6
+    }
+  }
+}

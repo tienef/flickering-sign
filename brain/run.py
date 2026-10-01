@@ -24,7 +24,7 @@ import time
 from collections import Counter
 from pathlib import Path
 
-from .backends import make_fast, make_slow
+from .backends import make_fast, make_middle, make_slow
 from .brain import Brain
 from .bundle import Bundle
 from .digest import write_digest
@@ -54,14 +54,15 @@ def main(argv=None) -> int:
     ap.add_argument("--bundle", default="bundles/ada")
     ap.add_argument("--world", default="toy")
     ap.add_argument("--ticks", type=int, default=300, help="ticks to run; 0 = until stopped")
-    ap.add_argument("--fast", default="stub", help="System 1 backend: stub | laya")
-    ap.add_argument("--slow", default="stub", help="System 2 backend: stub | qwen (any OpenAI-compatible endpoint; alias: openai)")
+    ap.add_argument("--fast", default="stub", help="System 1 backend: stub | laya | none (three levels: the head, step 3)")
+    ap.add_argument("--middle", default=None, help="three levels: the middle level, stub | qwen (genome `middle`)")
+    ap.add_argument("--slow", default="stub", help="System 2 backend: stub | qwen (an OpenAI-compatible endpoint)")
     ap.add_argument("--fast-device", default=None,
                     help="override the bundle's fast.device (cpu | cuda)")
     ap.add_argument("--think-budget", type=int, default=None,
-                    help="override the bundle's slow.think_budget (thinking tokens per request)")
+                    help="override the bundle's slow.think_budget (tokens; q27 thinks only with one)")
     ap.add_argument("--model", default=None,
-                    help="override the bundle's slow.model (the name your endpoint gives the model)")
+                    help="override the bundle's slow.model (qwen-fp8, qwen-uncensored, qwen)")
     ap.add_argument("--clamp", action="append", default=[], metavar="DIAL=LEVEL",
                     help="fix a dial for this run, e.g. --clamp noradrenaline=0.9 (repeatable)")
     ap.add_argument("--pace", type=float, default=None,
@@ -93,7 +94,12 @@ def main(argv=None) -> int:
         # that leaves it room (the q27 brain profile), never in another's slack.
         print(f"warming {slow.model} (may swap the card) ...", flush=True)
         print(f"  ready in {slow.warm()} s", flush=True)
-    brain = Brain(bundle, make_fast(args.fast, seed=args.seed, cfg=fast_cfg), slow, clamps=clamps)
+    if args.middle == "qwen":                                 # an optional GPU lease (genome `middle.lease`)
+        from .gpu_lease import text_lease_for
+        text_lease_for(bundle.config.get("middle", {}), bundle.name)
+    middle = (make_middle(args.middle, seed=args.seed, cfg=dict(bundle.config.get("middle", {})))
+              if args.middle else None)
+    brain = Brain(bundle, make_fast(args.fast, seed=args.seed, cfg=fast_cfg), slow, clamps=clamps, middle=middle)
     out = Path(args.out or f"runs/brain-{bundle.name}.jsonl")
     out.parent.mkdir(parents=True, exist_ok=True)
     save_every = int(bundle.config.get("loop", {}).get("save_every", 25))
@@ -104,10 +110,11 @@ def main(argv=None) -> int:
     actions, escalations, thoughts = Counter(), 0, 0
     with open(out, "a", encoding="utf-8") as log:
         log.write(json.dumps({"meta": {
-            "bundle": bundle.name, "world": world.name, "fast": brain.fast.name,
+            "bundle": bundle.name, "world": world.name, "fast": getattr(brain.fast, "name", None), "middle": getattr(brain.middle, "name", None),
             "slow": brain.slow.name, "seed": args.seed, "resumed_at": resumed_at,
             "started": time.strftime("%Y-%m-%dT%H:%M:%S"), "clamps": clamps,
             "variant": bundle.config.get("variant"), "pace": pace,
+            "genome": brain.declarations(getattr(world, "verbs", {})),
         }}) + "\n")
 
         def control(paused: bool, by: str, reason: str) -> None:

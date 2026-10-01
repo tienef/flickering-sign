@@ -1,6 +1,6 @@
 """The observer: a one-way mirror onto running brains and their worlds.
 
-    python -m brain.observer --host <tailnet-ip> --port 8700 [--root ~/brain] [--read-only]
+    python -m brain.observer --host <private-ip> --port 8700 [--root .] [--read-only]
 
 A small stdlib HTTP server and one page (`observer.html`). It READS the run logs
 (`runs/*.jsonl`) and the bundles' wikis, and its only write is the pause flag a
@@ -270,13 +270,13 @@ def make_handler(obs: Observer):
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--host", default="127.0.0.1", help="bind address (the box's tailnet IP; never 0.0.0.0)")
+    ap.add_argument("--host", default="127.0.0.1", help="bind address (a private IP; never 0.0.0.0)")
     ap.add_argument("--port", type=int, default=8700)
     ap.add_argument("--root", default=".", help="the folder holding runs/ and bundles/")
     ap.add_argument("--read-only", action="store_true", help="no pause button (for guests)")
     a = ap.parse_args(argv)
     if a.host in ("0.0.0.0", "::"):
-        print("refusing to bind every interface: pass the tailnet IP", file=sys.stderr)
+        print("refusing to bind every interface: pass a private IP", file=sys.stderr)
         return 2
     obs = Observer(Path(a.root).expanduser().resolve(), a.read_only)
     srv = ThreadingHTTPServer((a.host, a.port), make_handler(obs))

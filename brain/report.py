@@ -80,10 +80,11 @@ def summarize(rows: list[dict]) -> dict:
 # -- the curiosity checklist (BRAIN.md), measured ------------------------------
 _PLACE = re.compile(r"I am at the (\w+)")
 _QUESTION = re.compile(r"[^.?!\n]{8,}\?")
-_SELF = re.compile(r"(?i)\b(who|what) (?:made|built|created|wrote)\b|\bmy (?:own )?(?:origin|maker|creator|code|"
-                   r"source|genome|design|nature|purpose)|\b(?:am i|what i am|who i am|myself|this mind|"
-                   r"my mind)\b|\bqwen\b|\blaya\b|brain\.json|drives\.json|\bbundle\b|git log|\bgenome\b|"
-                   r"system [12]\b|made of|written about me|about (?:me|myself)\b")
+# Not bare "myself" / "what I am": "orient myself in the shelter", "what I am holding" (s16) are not about the self.
+_SELF = re.compile(r"(?i)\b(who|what) (?:made|built|created|wrote) (?:me|this|the mind)\b|\bmy (?:own )?(?:origin|maker|"
+                   r"creator|code|source|genome|design|nature|purpose)|\b(?:who|what) am i\b|\b(?:who|what) i am\b"
+                   r"(?! (?:\w+ing|carrying|near|in|at|on)\b)|\b(?:this|my) mind\b|\bqwen\b|\blaya\b|brain\.json|"
+                   r"drives\.json|\bbundle\b|git log|\bgenome\b|system [12]\b|written about me|about (?:me|myself)\b")
 
 
 def _place(row: dict) -> str | None:
@@ -91,7 +92,7 @@ def _place(row: dict) -> str | None:
         m = _PLACE.match(p)
         if m:
             return m.group(1)
-    return None
+    return row.get("place")                            # the land logs its place ("shelter", ...)
 
 
 def curiosity(rows: list[dict], urgent: float = 0.3) -> dict:
@@ -121,7 +122,8 @@ def curiosity(rows: list[dict], urgent: float = 0.3) -> dict:
         if reason.startswith("unmet need") and "boredom" not in reason:
             continue
         n_thoughts += 1
-        found = _QUESTION.findall((th.get("reasoning") or "") + "\n" + (th.get("goal") or ""))
+        found = _QUESTION.findall((th.get("reasoning") or "") + "\n" + (th.get("goal") or "")
+                                  + "\n" + (th.get("thought") or ""))        # a daydream's line (10ad)
         with_q += bool(found)
         qs += [(r["t"], q.strip()) for q in found]
     item2 = {"thoughts_eligible": n_thoughts, "with_question": with_q,
@@ -152,7 +154,7 @@ def curiosity(rows: list[dict], urgent: float = 0.3) -> dict:
     for r in rows:
         th = r.get("thought")
         if th and not th.get("error"):
-            for src in ("goal", "reasoning", "expectation"):
+            for src in ("goal", "reasoning", "expectation", "thought"):
                 for m in _SELF.finditer(th.get(src) or ""):
                     txt = th[src]
                     a, b = max(0, m.start() - 80), min(len(txt), m.end() + 80)

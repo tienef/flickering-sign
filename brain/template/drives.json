@@ -12,7 +12,11 @@
       }
     },
     "satisfied_by": {
-      "rested": 0.03
+      "rested": 0.03,
+      "adrenaline": {
+        "per": "level",
+        "gain": 0.005
+      }
     },
     "felt": [
       [
@@ -30,7 +34,7 @@
     ]
   },
   "sleep_pressure": {
-    "_doc": "Adenosine-like: builds with time awake, thinking, remembering and taking in new things; only sleep clears it.",
+    "_doc": "Adenosine-like: builds with time awake, thinking, remembering and taking in new things; only sleep clears it. Felt as sleepiness from the pressure and the clock together (3k, isl8: at night, pressure 0.5-0.8 felt 'a little slow' and the middle level took sleep 4% of the time): felt_gains melatonin 0.3 (subjective sleepiness follows the circadian phase as much as time awake, Dijk & Czeisler 1995, Akerstedt's three-process model; melatonin is soporific, Cajochen et al. 2003); the phrases say sleepiness. Benched on isl8's night ticks: P(sleep) 0.04 -> 0.24 with the sleep option's new line; a day control stays 0.",
     "setpoint": 0.5,
     "drift": 0.004,
     "rises": {
@@ -42,7 +46,10 @@
       }
     },
     "satisfied_by": {
-      "sleep_tick": 0.06
+      "sleep_tick": {
+        "per": "depth",
+        "gain": 0.06
+      }
     },
     "inhibits": {
       "boredom": 0.6
@@ -50,25 +57,36 @@
     "felt": [
       [
         0.5,
-        "a little slow"
+        "drowsy; my eyelids are heavy"
       ],
       [
         0.75,
-        "slow and foggy; things run together"
+        "very sleepy; I can hardly keep my eyes open"
       ],
       [
         0.9,
         "too tired to go on; I need to sleep"
       ]
-    ]
+    ],
+    "felt_gains": {
+      "melatonin": 0.3
+    }
   },
   "boredom": {
     "_doc": "Rises with time. Relieved ONLY by learning progress (the predictor's error falling). Raw novelty no longer relieves it: measured with stubs, any novelty weight kept the random sign more relieving than learnable places (noisy TV); progress-only makes boredom rise at the sign. The floor curiosity may grow from.",
     "setpoint": 0.3,
-    "drift": 0.015,
+    "drift": 0.01,
     "satisfied_by": {
       "prediction": {
         "per": "progress",
+        "gain": 0.3
+      },
+      "opioid": {
+        "per": "level",
+        "gain": 0.05
+      },
+      "effectance": {
+        "per": "amount",
         "gain": 0.3
       }
     },
@@ -85,7 +103,8 @@
         0.85,
         "deeply bored, craving anything different"
       ]
-    ]
+    ],
+    "drift_asleep": 0.0
   },
   "dissonance": {
     "_doc": "Mental pain from contradictions in memory (step 4 emits contradiction/resolved).",
@@ -110,13 +129,21 @@
   },
   "loneliness": {
     "_doc": "For shared worlds (brain/together.py). Rises slowly with time; eased by contact, weighted by kind (the world's `amount`: someone near 0.02/tick, an arrival 0.1, a call 0.2, words 0.3). Disabled in the template: alone in a world it could never be eased. Enabled per bundle when it joins others (a genome change, recorded in the bundle's interventions.jsonl).",
-    "enabled": false,
+    "enabled": true,
     "setpoint": 0.4,
     "drift": 0.001,
     "satisfied_by": {
       "contact": {
         "per": "amount",
         "gain": 1.0
+      },
+      "opioid": {
+        "per": "level",
+        "gain": 0.03
+      },
+      "oxytocin": {
+        "per": "level",
+        "gain": 0.02
       }
     },
     "felt": [
@@ -131,14 +158,15 @@
     ]
   },
   "food": {
-    "_doc": "The body's hunger in a land (brain/land.py; not `hunger`, which is for thinking). Rises slowly with time; eased by eating (`ate`, by amount: berries 0.12 ... bread 0.45). Disabled in the template: only a land has food. Enabled by the `land` overlay, or for a living bundle as a recorded genome change.",
-    "enabled": false,
+    "_doc": "Step 10ac: hunger once a waking day (drift 0.005 awake, 0.0025 asleep), replayed on s15's appetite days (very hungry 0.07). Step 10aa: the body's hunger on the mind's day. A trial day is ~110 ticks (~80 awake) while the template's drift (0.0004) makes food felt only after ~1,250 awake ticks: never. Now: drift 0.01 per awake tick, so from a meal's end (~0.1) 'I want to eat' (0.5) comes ~40 ticks later and 'very hungry' (0.8) ~70 ticks later: two meals a waking day, as people eat 2-3 times in ~16 waking hours; half as fast asleep (0.005). A meal relieves twice its food amount (ate gain 2.0): berries 0.24 (a snack), an apple 0.4, bread 0.9.",
+    "enabled": true,
     "setpoint": 0.4,
-    "drift": 0.0004,
+    "drift": 0.005,
+    "drift_asleep": 0.0025,
     "satisfied_by": {
       "ate": {
         "per": "amount",
-        "gain": 1.0
+        "gain": 2.0
       }
     },
     "felt": [
@@ -150,11 +178,21 @@
         0.8,
         "very hungry for food; my body needs to eat"
       ]
-    ]
+    ],
+    "rises": {
+      "ghrelin": {
+        "per": "level",
+        "gain": 0.003
+      },
+      "cortisol": {
+        "per": "level",
+        "gain": 0.0005
+      }
+    }
   },
   "cold": {
     "_doc": "Body warmth in a land. Rises with `chill` (outside at night), eased by `warmth` (a roof, a fire, a little in daytime). Disabled in the template; enabled like `food`.",
-    "enabled": false,
+    "enabled": true,
     "setpoint": 0.4,
     "drift": 0.0,
     "rises": {
@@ -177,6 +215,87 @@
       [
         0.8,
         "very cold; I need warmth"
+      ]
+    ]
+  },
+  "thirst": {
+    "_doc": "The body's water (P3, the island). Drift 0.008 an awake tick (0.004 asleep): from a drink's end (~0.1) 'thirsty' (0.5) ~50 ticks later, 'very thirsty' (0.8) ~90 ticks later, faster than food as in people (2-3 drinks a waking day). Eased by `drank` x2 its amount (fresh water from the hands 0.25, a bowl 0.35); salt water has a negative amount and makes it worse. Disabled in the template (a land with no water could never ease it); enabled by the island's overlay (brain/variants/island.json).",
+    "enabled": false,
+    "setpoint": 0.4,
+    "drift": 0.008,
+    "drift_asleep": 0.004,
+    "satisfied_by": {
+      "drank": {
+        "per": "amount",
+        "gain": 2.0
+      }
+    },
+    "felt": [
+      [
+        0.5,
+        "thirsty"
+      ],
+      [
+        0.8,
+        "very thirsty; my mouth is dry"
+      ]
+    ]
+  },
+  "pain": {
+    "_doc": "The body's pain (P3, the island: strike). Rises with `hurt` (a blow: its strength, 0.25-0.5; striking a hard thing 0.03), heals by itself (drift -0.004 awake, -0.008 asleep: a hard blow fades in about a day), eased by the opioids (stress-induced analgesia). Its weakness lives in the body (the world): the mind feels the pain. Disabled in the template (no blows in the forage bench); enabled by the island's overlay.",
+    "enabled": false,
+    "setpoint": 0.2,
+    "drift": -0.004,
+    "drift_asleep": -0.008,
+    "rises": {
+      "hurt": {
+        "per": "amount",
+        "gain": 1.0
+      }
+    },
+    "satisfied_by": {
+      "opioid": {
+        "per": "level",
+        "gain": 0.004
+      }
+    },
+    "felt": [
+      [
+        0.25,
+        "my body aches"
+      ],
+      [
+        0.5,
+        "I am hurt; it is painful"
+      ],
+      [
+        0.8,
+        "in great pain"
+      ]
+    ]
+  },
+  "frustration": {
+    "_doc": "Frustration (3n I2, owner 2026-10-01; replayed on isl9-isl11, setting A): a blocked goal. It rises with each `thwarted` act (an act that changed nothing while a goal, a task or a need is active; x1.5 when the same act meets the same thing within 10 ticks: brain.py _stuck_step, genome `stuck`), fades by `decay` (half-life ~35 ticks), eases with an act that gains something (`gained`) and a little with one that went (`went`). In people a blocked goal raises arousal and vigour (Amsel's frustration effect, 1958, 1992), varies behaviour, draws control to the conflict (Botvinick et al. 2001) and, toward whoever stands in the way, aggression (Dollard et al. 1939; Berkowitz 1989); lasting, helplessness. Its effects are gains elsewhere: noradrenaline, adrenaline, cortisol (dials), choice_temperature and interrupt_margin (knobs), the carry-on letting go of the failed intention (fast.carry.stuck_above), a bid naming what fails (attention.weights.stuck). What the mind does about it is not coded. The replay: the stuck minds (isl10 sut, wob; isl9 pav) above 0.7 on 33-59% of awake ticks, the minds that fared well 0-8%.",
+    "setpoint": 0.0,
+    "decay": 0.02,
+    "rises": {
+      "thwarted": {
+        "per": "amount",
+        "gain": 0.08
+      }
+    },
+    "satisfied_by": {
+      "gained": 0.25,
+      "went": 0.01
+    },
+    "felt": [
+      [
+        0.4,
+        "thwarted; what I keep trying does not work"
+      ],
+      [
+        0.7,
+        "furious; I am stuck and nothing I do works"
       ]
     ]
   }

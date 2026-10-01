@@ -60,8 +60,9 @@ class Bundle:
             if not create:
                 raise FileNotFoundError(f"no bundle at {path}")
             shutil.copytree(TEMPLATE, path, dirs_exist_ok=True)
-            if overlay:
-                for fname, over in _read(Path(overlay)).items():
+            overlays = [o for o in (overlay or "").split(",") if o]      # several, applied in order
+            for ov in overlays:
+                for fname, over in _read(Path(ov)).items():
                     if fname.startswith("_"):
                         continue
                     merged = _merge(_read(path / fname), over)
@@ -71,7 +72,7 @@ class Bundle:
             cfg["name"] = path.name
             cfg["born"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
             if overlay:
-                cfg["variant"] = Path(overlay).stem
+                cfg["variant"] = "+".join(Path(o).stem for o in overlays)
             with open(path / "brain.json", "w", encoding="utf-8") as f:
                 json.dump(cfg, f, indent=2, ensure_ascii=False)
             (path / "wiki").mkdir(exist_ok=True)

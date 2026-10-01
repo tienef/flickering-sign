@@ -1,21 +1,26 @@
 cff-version: 1.2.0
 message: "If this work helps yours, please cite it as below."
-title: "flickering-sign: an autonomous brain from Laya and an LLM"
+title: "flickering-sign: an autonomous brain in three levels"
 abstract: >-
-  An autonomous brain packaged as a bundle: Laya as a fast System 1, any
-  OpenAI-compatible LLM as a slow, asynchronous System 2, config-declared drives
-  and neuromodulator dials over one event stream, a hippocampus with sleep
-  consolidation, and a cerebellum whose learning progress is the only relief from
-  boredom. Curiosity is not a module: the experiment watches whether it emerges.
+  An autonomous brain packaged as a bundle, in three levels of control: plain code
+  that decides each tick whether the moment calls for a choice (with a per-mind Laya
+  head distilled at sleep), an LLM read in one pass by its letters' probabilities,
+  and the same LLM thinking when an arbiter gives it the floor. Config-declared
+  drives and hormones over one event stream, each hormone modelled on its known
+  human effects; a hippocampus with sleep consolidation and cues; a cerebellum.
+  Several minds live on a small persistent island. Nothing of curiosity or
+  cooperation is programmed: the experiment watches what emerges.
 type: software
 authors:
   - family-names: Tienef
     alias: Tienef
 doi: 10.5281/zenodo.23041524
 repository-code: "https://github.com/tienef/flickering-sign"
-license: AGPL-3.0-only
-version: 0.1.1
-date-released: "2026-09-29"
+license:
+  - AGPL-3.0-only
+  - CC-BY-SA-4.0
+version: 0.2.0
+date-released: "2026-10-01"
 keywords:
   - cognitive architecture
   - large language models

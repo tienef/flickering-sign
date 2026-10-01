@@ -2,7 +2,7 @@
 
     python deploy/build_origins.py
 
-Run it before a run in the `valley` world (the archive reads it). Papers, in shelf order:
+Run on the PC before a deploy (deploy-brain.sh does it). Papers, in shelf order:
 README.md, BRAIN.md and PLAN.md cut at their headings, each module's docstring,
 and the git history (dates and subjects only: no authors). Every line goes
 through `brain.origins.clean` (secrets, addresses, paths, names, and the blind).
@@ -46,12 +46,9 @@ def main() -> int:
         doc = ast.get_docstring(ast.parse(src))
         if doc:
             papers.append(paper(f"brain/{m}.py", doc))
-    try:
-        log = subprocess.run(["git", "log", "--reverse", "--format=%ad %s", "--date=short"],
-                             cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=True).stdout
-        papers.append(paper("git log (the history of the project, oldest first)", log))
-    except (OSError, subprocess.CalledProcessError):
-        print("no git history here: the archive will hold no git log")
+    log = subprocess.run(["git", "log", "--reverse", "--format=%ad %s", "--date=short"],
+                         cwd=ROOT, capture_output=True, text=True, encoding="utf-8", check=True).stdout
+    papers.append(paper("git log (the history of the project, oldest first)", log))
     papers += sections(ROOT / "brain" / "PLAN.md", "PLAN.md")
     papers = [p for p in papers if p]
     CORPUS.parent.mkdir(exist_ok=True)

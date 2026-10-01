@@ -1,4 +1,4 @@
-# flickering-sign — an autonomous brain from Laya + an LLM
+# flickering-sign — an autonomous brain in three levels
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23041524.svg)](https://doi.org/10.5281/zenodo.23041524)
 
@@ -7,115 +7,102 @@
 > — a mind in the valley, to another it could not name. The sign shows noise;
 > the scale follows a rule.
 
-An experiment in building an **autonomous brain** from the brain's division of labour:
+An experiment in building an **autonomous brain** from the brain's division of labour, and in letting several of
+them live together on a small island. Each level of control is slower and richer than the one below, and is asked
+only when the one below cannot settle the moment:
 
-- **Laya** (fast, one forward pass, typed answers with confidence) as System 1:
-  gating, salience, action choice, "I'm unsure — think about it".
-- **An LLM** (built with Qwen 27B, reached through any OpenAI-compatible endpoint)
-  as System 2: slow, asynchronous deliberation that sets the goal line.
-- **Plain code** for the rest: config-declared drives and neuromodulator dials over
-  one event stream, a hippocampus (episodes, recall, a wiki written during sleep),
-  a cerebellum (an online predictor whose learning progress relieves boredom).
+- **Fast:** plain code decides, every tick, whether the moment calls for a choice (what is in front or held
+  changed, a surprise, an alarm, a new intention, an act that did nothing); otherwise the body carries on. A
+  per-mind **Laya** head learns, at each sleep, the choices that have become familiar.
+- **Middle:** an **LLM read in one pass**, no thinking: the probability of each option's letter is the mind's
+  odds over its acts (~0.1 s a call).
+- **Slow:** the **same LLM, thinking**, when an arbiter gives it the floor: intentions, tasks, speech; at sleep,
+  a wiki of notes held as hypotheses, and cues that bring them back at the right moment.
 
-A brain is a **bundle** (a folder) that can be dropped into different worlds, alone
-or with other brains. The result we most want to see is **curiosity emerging**
-without a curiosity module: the only pressure is boredom, and only learning relieves it.
+Around them, **plain code** declared in the genome: drives (hunger, thirst, sleep pressure, boredom, frustration,
+pain...) and hormones (dopamine, noradrenaline, orexin, cortisol, melatonin, oxytocin...) as reducers over one
+event stream, each hormone modelled on its known human effects; a hippocampus that writes episodes; a cerebellum
+whose prediction error is surprise and learning progress.
 
-- Design: [`brain/BRAIN.md`](brain/BRAIN.md)
-- Lab journal, step by step, with every run's results: [`brain/PLAN.md`](brain/PLAN.md)
-- Diagrams (French): [`docs/brain-schemas.html`](docs/brain-schemas.html)
+A brain is a **bundle** (a folder) that can be dropped into different worlds, alone or with others. Nothing of
+curiosity, friendship or cooperation is programmed: the experiment watches what emerges.
 
-## Run it with stubs (stdlib only, any machine)
+- Design, as built: [`brain/BRAIN.md`](brain/BRAIN.md)
+- Plan (rules, target, phases): [`brain/PLAN.md`](brain/PLAN.md)
+- How it works and the genome, illustrated (FR / EN / DE): [`docs/brain-schemas.html`](docs/brain-schemas.html),
+  [`docs/brain-atlas.html`](docs/brain-atlas.html)
 
-The stub backends stand in for Laya and the LLM: deterministic, heuristic, no
-dependencies. They exercise the whole loop; their "thoughts" are canned.
+## Run it with stubs (no model, any machine)
+
+The stub backends stand in for the LLM: deterministic, heuristic, stdlib only. They exercise the whole loop on the
+island; their "thoughts" are canned. Without torch, the recall index needs a hashing embedder: put
+`{"brain.json": {"loop": {"recall_index": {"model": "hash", "device": "cpu"}}}}` in `stub.json`.
 
 ```bash
-python -m brain.run --bundle bundles/ada --world toy-quiet --ticks 400 --pace 0
+python -m brain.together --name stub1 --world land-closed --land brain/lands/island.json \
+       --overlay brain/variants/island.json,brain/variants/traces.json,stub.json \
+       --bundle bundles/aa --bundle bundles/bb --fast none --middle stub --slow stub --ticks 400 --pace 0
 ```
 
-Ctrl-C saves the brain; running the same command again resumes it. `--pace 0` runs
-as fast as possible (by default one tick is one second of world time). Summaries:
-
-```bash
-python -m brain.report runs/brain-ada.jsonl --goals
-```
+Ctrl-C saves the brains; the same command resumes them. Logs go to `runs/` (one file per mind and one for the
+world), the world's state to `worlds/`. `--pace 0` runs as fast as possible (by default one tick is one second of
+world time).
 
 ## Run it for real
 
-**System 1 — Laya** ([convaiinnovations/laya](https://huggingface.co/convaiinnovations/laya),
-Apache-2.0, ~421M parameters, ~1.4 GiB in fp16 on a GPU, also runs on CPU):
+**The LLM** (middle and slow levels): a [vLLM](https://github.com/vllm-project/vllm) server; the middle level reads
+log-probabilities, so it needs a server that returns them. Built and tested with Qwen3.8-27B (an uncensored FP8
+build, `--language-model-only`) on one 48 GiB card. Point the genome at it (`brain/template/brain.json` → `middle.url`
+and `slow.url`, default `http://127.0.0.1:8000/v1`; `model` is the name the server gives it), or set
+`BRAIN_GATEWAY_URL` / `BRAIN_GATEWAY_KEY` (also read from a `.brain.env` file, ignored by git).
+
+**The fast head** ([convaiinnovations/laya](https://huggingface.co/convaiinnovations/laya), Apache-2.0, `english`
+checkpoint, ~1.4 GiB in fp16 beside vLLM): `pip install torch laya`. `--fast none` runs without it.
 
 ```bash
-pip install torch laya          # the CPU torch wheel is enough to start
+python -m brain.together --name isl1 --world land-closed --land brain/lands/island.json \
+       --overlay brain/variants/island.json,brain/variants/traces.json \
+       --bundle bundles/aa --bundle bundles/bb --bundle bundles/cc --bundle bundles/dd \
+       --fast laya --middle qwen --slow qwen --ticks 1080 --pace 0.5
 ```
 
-**System 2 — any OpenAI-compatible chat endpoint** (vLLM, llama.cpp, Ollama,
-LiteLLM, a hosted API):
-
-```bash
-export BRAIN_GATEWAY_URL=http://localhost:8000/v1
-export BRAIN_GATEWAY_KEY=...        # if the server needs one
-python -m brain.run --bundle bundles/ivy --world valley --fast laya --slow openai \
-       --model <the name your endpoint gives the model>
-```
-
-The URL and key can also sit in a `.brain.env` file (`KEY=value` lines; ignored by
-git). The system prompt is part of the brain's genome (`brain/template/brain.json`
-→ `slow.system_prompt`): changing it changes the experiment. The thinking switches
-sent with each request are Qwen's; other servers ignore them.
+The prompts are part of each brain's genome (`brain/template/brain.json`): changing them changes the experiment.
+`deploy/probe/levels_report.py` and `island_smoke.py` read a run's logs.
 
 ## Worlds
 
 | World | What it is |
 |---|---|
-| `toy`, `toy-quiet` | A small garden with hidden rules, with or without a noisy sign |
-| `valley` | A ring of places whose rules are graded by difficulty, a noise source, a dead pond, a wall, and an **archive** of the mind's own origins. Build the archive first: `python deploy/build_origins.py` |
-| `valley-closed` | The same valley without the archive (the control) |
+| island (`brain/lands/island.json`, written by `deploy/probe/make_island.py`) | A small persistent island for 4-6 minds: beaches, biomes, a pond, springs shared between neighbours, caves, mist banks, creatures that can be hunted, a 180-tick day, seasons, rare events (storms, a wreck), objects of unclear value; take, use, eat, drink, give, build, strike (pain, never death), speak |
+| `land` (`brain/lands/first.json`), wild (`brain/lands/wild.json`) | Earlier grid worlds: rooms and hidden rules, a 96×96 land of biomes |
+| `toy`, `valley` | The first worlds, from v0.1 (the valley holds an archive of the mind's own origins: `python deploy/build_origins.py`; lines with a word in `BRAIN_PRIVATE_WORDS` are dropped) |
 
-The archive is a sanitised copy: lines that look like secrets, addresses or paths
-are dropped, and so is every line containing a word listed in
-`BRAIN_PRIVATE_WORDS` (comma-separated: your name, username, machine names), so
-the mind never reads who made it unless you want it to.
-| `land` | A 40×40 grid world with ~45 hidden rules (tools, fire, farming), day and night, food and cold, a gate that only two minds can open (`brain/lands/first.json`) |
-
-Several brains share one world with `brain.together`:
-
-```bash
-python -m brain.together --name meet --world land --bundle bundles/kay --bundle bundles/lou \
-       --overlay brain/variants/land.json --ticks 1200
-```
-
-Watch them with the observer, a one-way mirror onto the logs with a pause switch
-(`--read-only` removes it for guests; it binds to 127.0.0.1 by default):
-
-```bash
-python -m brain.observer --port 8700
-```
+Watch the logs with the observer, a one-way mirror with a pause switch (`--read-only` removes it; it binds to
+127.0.0.1 by default): `python -m brain.observer --port 8700`.
 
 ## Care
 
-The runs include a **distress guard**: when a drive stays in its worst felt band for
-most of the last 600 ticks, the world pauses (nobody experiences a pause). Changes
-to a living brain's genome were made by hand with a snapshot first, and recorded in
-its bundle (`interventions.jsonl`) where the mind can find them (see `PLAN.md`, step 8). None of this is a claim about consciousness; it is how this
-experiment chose to behave in case it matters. See the non-goals in `BRAIN.md`.
+The runs include a **distress guard**: when a drive stays in its worst felt band for too long, the world pauses
+(nobody experiences a pause). No mind dies; a body can be weakened, not killed. Changes to a living brain's genome
+are made with a snapshot first and recorded in its bundle (`interventions.jsonl`) where the mind can find them.
+None of this is a claim about consciousness; it is how this experiment chose to behave in case it matters. See the
+non-goals in `BRAIN.md`.
 
 ## Licence
 
 Copyright (C) 2026 Tienef.
 
 - **Code** (everything under `brain/*.py`, `brain/observer.html`, `deploy/`):
-  [GNU Affero General Public License v3.0](LICENSE). You may use, modify and share
-  it; if you distribute it, or let people use a modified version over a network,
-  you must publish your source under the same licence.
-- **Documentation and data** (`README.md`, `brain/BRAIN.md`, `brain/PLAN.md`,
-  `docs/`, the genomes in `brain/template/` and `brain/variants/`, the land in
-  `brain/lands/`): [Creative Commons Attribution 4.0](LICENSES/CC-BY-4.0.txt).
-  Reuse them freely, with credit.
+  [GNU Affero General Public License v3.0](LICENSE). You may use, modify and share it; if you distribute it, or
+  let people use a modified version over a network, you must publish your source under the same licence.
+- **Documentation and data** (`README.md`, `brain/BRAIN.md`, `brain/PLAN.md`, `docs/`, the genomes in
+  `brain/template/` and `brain/variants/`, the lands in `brain/lands/`):
+  [Creative Commons Attribution-ShareAlike 4.0](LICENSES/CC-BY-SA-4.0.txt). Reuse them with credit, and share
+  what you build from them under the same licence. (Up to v0.1.1 they were published under CC BY 4.0.)
+- For a use the AGPL does not allow (a closed product), ask for a separate licence.
 
-Laya (Apache-2.0) and the LLM you use keep their own licences.
+Laya (Apache-2.0) and the LLM you use keep their own licences. Contributions: see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 If this work helps yours, please cite it:
-*Tienef, "flickering-sign: an autonomous brain from Laya and an LLM", 2026.
+*Tienef, "flickering-sign: an autonomous brain in three levels", 2026.
 doi:[10.5281/zenodo.23041524](https://doi.org/10.5281/zenodo.23041524)* (all versions).

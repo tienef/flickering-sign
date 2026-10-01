@@ -3,12 +3,16 @@
 A dial is a leaky integrator toward a target computed from this tick's signals:
 
     target = clamp(baseline + sum(gain_s * signal_s))
-    D += rate * (target - D)
+    D += rate * (target - D)          # `rate_down` instead when falling, if declared:
+                                      # a surge that lingers (orexin after a surprise)
 
 A knob is what the rest of the brain actually reads — a bounded linear map of
 dials and drive urgencies:
 
     knob = clamp(base + sum(coeff_s * signal_s), min, max)
+
+A key `<signal>><threshold>` reads only what lies above the threshold (coeff x max(0, signal - threshold)): an
+inverted U with a plain key beside it (3n I6: noradrenaline helps effort up to a point, then hinders it).
 
 Signals are the flat dict from `events.summarize` plus `drive:<name>`,
 `drives:max` and, for knobs, the dial levels by name.
@@ -27,10 +31,12 @@ class Dial:
     rate: float = 0.2
     gains: dict = field(default_factory=dict)
     level: float = 0.5
+    rate_down: float | None = None
 
     def update(self, signals: dict[str, float]) -> None:
-        target = self.baseline + sum(g * signals.get(s, 0.0) for s, g in self.gains.items())
-        self.level += self.rate * (clamp(target) - self.level)
+        target = clamp(self.baseline + sum(g * signals.get(s, 0.0) for s, g in self.gains.items()))
+        rate = self.rate_down if self.rate_down is not None and target < self.level else self.rate
+        self.level += rate * (target - self.level)
 
 
 class DialSystem:
@@ -52,6 +58,7 @@ class DialSystem:
                 name=name,
                 baseline=base,
                 rate=float(spec.get("rate", 0.2)),
+                rate_down=float(spec["rate_down"]) if "rate_down" in spec else None,
                 gains={k: float(v) for k, v in spec.get("gains", {}).items()
                        if not k.startswith("_")},
                 level=self.clamps.get(name, float(levels.get(name, base))),
@@ -83,6 +90,10 @@ def compute_knobs(config: dict, signals: dict[str, float]) -> dict[str, float]:
         for s, c in spec.items():
             if s in _KNOB_RESERVED or s.startswith("_"):
                 continue
-            v += float(c) * signals.get(s, 0.0)
+            if ">" in s:
+                sig, _, at = s.partition(">")
+                v += float(c) * max(0.0, signals.get(sig, 0.0) - float(at))
+            else:
+                v += float(c) * signals.get(s, 0.0)
         out[name] = clamp(v, float(spec.get("min", 0.0)), float(spec.get("max", 1.0)))
     return out

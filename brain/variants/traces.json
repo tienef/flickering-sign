@@ -1,0 +1,8 @@
+{
+  "_doc": "The arm of learning within the day (P3, C): the template's `traces` block turned on. Combined with the island's overlay: --overlay brain/variants/island.json,brain/variants/traces.json (new minds only).",
+  "brain.json": {
+    "traces": {
+      "on": true
+    }
+  }
+}
